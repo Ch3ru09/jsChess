@@ -3,7 +3,7 @@ document.body.appendChild(canvas);
 
 const ctx = canvas.getContext("2d");
 
-const H = canvas.height = innerHeight;
-const W = canvas.width = innerWidth;
+var H = canvas.height = innerHeight;
+var W = canvas.width = innerWidth;
 
-const unit = 60;
+var unit = H*0.8/8;
