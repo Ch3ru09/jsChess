@@ -1,6 +1,6 @@
 class GameState {
   constructor() {
-    // 0: white, 1: black
+    // 0: Light, 1: Dark
     this.playing = 0;
     this.posArray = Array(64).fill(0);
   }
@@ -20,7 +20,7 @@ class GameState {
           c += Number(s);
           return;
         }
-        this.posArray[c] = (s == s.toLowerCase()? pieces.Black: pieces.White) | letterToPiece[s.toLowerCase()];
+        this.posArray[c] = (s == s.toLowerCase()? pieces.Dark: pieces.Light) | letterToPiece[s.toLowerCase()];
         c++;
       })
     });

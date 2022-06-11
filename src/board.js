@@ -19,7 +19,10 @@ class Board {
     ctx.fillRect(-border/2, -border/2, this.w+border, this.w+border);
     ctx.fillStyle = this.colors[0];
     ctx.fillRect(0, 0, this.w, this.w);
+
     this.drawSmallSquares();
+    this.drawPieces();
+
     ctx.restore();
   }
 
@@ -32,8 +35,14 @@ class Board {
     }
   }
 
-  setup() {
+  drawPieces() {
+    gameState.posArray.forEach((s, i) => {
+      if (s == 0) return;
 
+      const coor = { x: (i % 8)*unit, y: Math.floor(i / 8)*unit }
+      
+      ctx.drawImage(piecesAssets[`${s}`], coor.x, coor.y, unit, unit)
+    });
   }
 
   resize() {
