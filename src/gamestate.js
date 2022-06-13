@@ -1,14 +1,15 @@
 class GameState {
   constructor() {
-    // 0: Light, 1: Dark
+    // 8: Light, 16: Dark
     this.playing = 0;
     this.posArray = Array(64).fill(0);
+    this.pieceOn = null;
   }
 
   decode(fencode) {
     this.posArray = Array(64).fill(0);
     const info = fencode.split(" ");
-    this.playing = info[1] == "w"? 0: 1;
+    this.playing = info[1] == "w"? 8: 16;
     const letterToPiece = {
       "p": pieces.Pawn, "n": pieces.Knight, "b": pieces.Bishop, "r": pieces.Rook, "q": pieces.Queen, "k": pieces.King,
     }
@@ -24,5 +25,9 @@ class GameState {
         c++;
       })
     });
+  }
+
+  checkLegal() {
+    
   }
 }

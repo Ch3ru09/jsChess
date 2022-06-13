@@ -21,8 +21,9 @@ class Board {
     ctx.fillRect(0, 0, this.w, this.w);
 
     this.drawSmallSquares();
-    this.drawPieces();
 
+    this.mouse();
+    this.drawPieces();
     ctx.restore();
   }
 
@@ -38,10 +39,19 @@ class Board {
   drawPieces() {
     gameState.posArray.forEach((s, i) => {
       if (s == 0) return;
+      var a, coor
+      if (Number(s) < 0) {
+        // min and max to keep piece within board
+        // coor = { x: Math.min(Math.max(mouse.pos.x-this.x-unit/2, 0), this.w-unit), y: Math.min(Math.max(mouse.pos.y-this.y-unit/2, 0), this.w-unit)};
+        coor = { x: mouse.pos.x-this.x-unit/2, y: mouse.pos.y-this.y-unit/2};
+        // to get correct asset
+        a = -s;
+      } else {
+        coor = { x: (i % 8)*unit, y: Math.floor(i / 8)*unit }
+        a = s;
+      }
 
-      const coor = { x: (i % 8)*unit, y: Math.floor(i / 8)*unit }
-      
-      ctx.drawImage(piecesAssets[`${s}`], coor.x, coor.y, unit, unit)
+      ctx.drawImage(piecesAssets[`${a}`], coor.x, coor.y, unit, unit)
     });
   }
 
@@ -50,4 +60,29 @@ class Board {
     this.x = (W-this.w)/2;
     this.y = (H-this.w)/2; 
   }
+
+  mouse() {
+    if (!mouse.inBoard) {
+      canvas.style.cursor = "default";
+      return;
+    }
+
+    let pos = Object.values(mouse.posInBoard).map(v => {
+      return v*unit;
+    });
+    
+    if (gameState.posArray[mouse.getPosIndex()] !== 0) {
+      canvas.style.cursor = "grab";
+      gameState.pieceOn = mouse.getPosIndex();
+    } else {
+      canvas.style.cursor = "default";
+      gameState.pieceOn = null;
+    }
+
+    ctx.save();
+    ctx.fillStyle = "#f008";
+    ctx.fillRect(pos[0], pos[1], unit, unit);
+    ctx.restore();
+  }
+
 }
