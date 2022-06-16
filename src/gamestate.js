@@ -6,12 +6,18 @@ class GameState {
     this.pieceOn = null;
     this.pieceGrabbed = null;
     this.enPassant = null;
+    this.canCastle = 0; // 1111
+                         // KQkq
+    this.castling = {"K": 8, "Q": 4, "k": 2, "q": 1};
+    this.moves = {halfMove: 0, fullMove: 0};
   }
 
   decode(fencode) {
     this.posArray = Array(64).fill(0);
     const info = fencode.split(" ");
     this.playing = info[1] == "w"? 8: 16;
+    info[2].split("").forEach(s => {this.canCastle |= this.castling[s]})
+    
     const letterToPiece = {
       "p": pieces.Pawn, "n": pieces.Knight, "b": pieces.Bishop, "r": pieces.Rook, "q": pieces.Queen, "k": pieces.King,
     }
@@ -29,23 +35,46 @@ class GameState {
     });
   }
 
+  isSameColor(playing) {
+    return (Math.abs(this.posArray[mouse.getPosIndex()]) & playing) == playing ? true: false;
+  }
+
   isPieceLight(piecePos) {
     return (Math.abs(this.posArray[piecePos]) & 8) == 8 ? true: false;
   }
 
   checkLegal() {
     if (!mouse.inBoard) return false;
-    if (!xor(this.isPieceLight(mouse.getPosIndex()), this.isPieceLight(this.pieceGrabbed))) return false;
+    if (this.isSameColor(this.playing)) return false;
 
     switch ((Math.abs(this.posArray[this.pieceGrabbed]) << 29) >>> 29) {
       case pieces.Pawn:
         let direction = this.isPieceLight(this.pieceGrabbed)? -1: 1;
-        if (mouse.pieceOn != null) return false
+        
 
-        if (mouse.getPosIndex() == this.pieceGrabbed+(8*direction)) return true;
-        if (this.checkPawnDoublePush(this.pieceGrabbed)) {
-          if (mouse.getPosIndex() == this.pieceGrabbed+(8*direction*2)) return true;
-          this.enPassant = this.pieceGrabbed+(8*direction);
+        // get 1 and 2 for 1 forwards or 2 forwards:
+        for (let i = 1; i <= 2; i++) {
+          if (mouse.getPosIndex() != this.pieceGrabbed+(8*direction*(i))) continue;
+          if (this.pieceOn != null) return false;
+          if (this.posArray[this.pieceGrabbed+(8*direction)] != 0) return false
+          if (i != 2) return true;
+          
+          if (this.canDoublePush(this.pieceGrabbed)) {
+            this.enPassant = this.pieceGrabbed+(8*direction);
+            return true;
+          }
+        }
+
+        // get -1 and 1 for side captures
+        for (let i of [-1, 1]) {
+          if (mouse.getPosIndex() != this.pieceGrabbed+(8*direction+(i))) continue;
+          if (mouse.getPosIndex() == this.enPassant) {
+            this.posArray[this.enPassant+(-direction*8)] = 0;
+            return true;
+          }
+
+          if (this.pieceOn == null) break;
+          return true;
         }
         break;
 
@@ -58,7 +87,36 @@ class GameState {
         break;
 
       case pieces.Rook:
-        console.log("Rook");
+        // horizontal
+        {
+          const side = mouse.getPosIndex()%8 < this.pieceGrabbed%8? 0:8;
+          const dir = side == 0? -1: 1; 
+          for (let i = 1; i <= Math.abs(side-this.pieceGrabbed%8); i++) {
+            let curr = this.pieceGrabbed+i*dir
+            if (this.posArray[curr] !== 0 && curr != mouse.getPosIndex()) {
+              break
+            }
+            if (mouse.getPosIndex() == curr) {
+              return true
+            }
+          }
+        }
+
+        // vertical
+        {
+          const side = Math.floor(mouse.getPosIndex()/8) < Math.floor(this.pieceGrabbed/8)? 0:8;
+          const dir = side == 0? -1: 1; 
+          for (let i = 1; i <= Math.abs(side-Math.floor(this.pieceGrabbed/8)); i++) {
+            let curr = this.pieceGrabbed+8*i*dir
+            if (this.posArray[curr] !== 0 && curr != mouse.getPosIndex()) {
+              break
+            }
+            if (mouse.getPosIndex() == curr) {
+              return true
+            }
+          }
+        }
+
         break;
 
       case pieces.Queen:
@@ -72,17 +130,16 @@ class GameState {
       default:
         break;
     }
-    console.log(this.playing ^ 24);
-    // this.playing = this.playing ^ 24
-    return true;
+
+    return false;
   }
 
-  checkPawnDoublePush(piece) {
-    if (Math.floor(piece/8)+1 == (this.isPieceLight(piece)? 7: 2)) return true
+  canDoublePush(pawn) {
+    if (Math.floor(pawn/8)+1 == (this.isPieceLight(pawn)? 7: 2)) return true
     return false
   }
 }
 
 function xor(a, b) {
-  return (a || b) && !(a && b);
+  return (a && !b) || (!a && b);
 }

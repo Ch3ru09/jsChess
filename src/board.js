@@ -38,6 +38,9 @@ class Board {
 
   drawPieces() {
     gameState.posArray.forEach((s, i) => {
+      ctx.fillStyle = "#000";
+      ctx.fillText(`${i}`, (i % 8)*unit + 0.1*unit, Math.floor(i / 8)*unit + 0.2*unit, 100, 100)
+      
       if (s == 0) return;
       var a, coor
       if (Number(s) < 0) {
