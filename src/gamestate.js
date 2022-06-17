@@ -83,14 +83,34 @@ class GameState {
         break;
 
       case pieces.Bishop:
-        console.log("Bishop");
+        const side = Math.floor(mouse.getPosIndex()/8) < Math.floor(this.pieceGrabbed/8)? 0:7;
+        const dir = side == 0? -1: 1;
+        const blocked = [];
+        for (let i = 1; i <= Math.abs(side-(Math.floor(this.pieceGrabbed/8))); i++) {
+          if (blocked.length == 2) break
+          for (let j = 0; j < 2; j++) {
+            if (blocked.includes(j)) continue;
+            
+            let curr = this.pieceGrabbed + dir*8*i + j*i*2 - i;
+            if (curr > 64 || curr < 0) continue;
+            if (Math.floor(curr/8) != Math.floor(this.pieceGrabbed/8) + dir*i) continue
+            
+            if (this.posArray[curr] !== 0 && curr !== mouse.getPosIndex()) {
+              blocked.push(j)
+              continue
+            }
+            if (mouse.getPosIndex() == curr) {
+              return true
+            }
+          }
+        }
         break;
 
       case pieces.Rook:
         // horizontal
         {
-          const side = mouse.getPosIndex()%8 < this.pieceGrabbed%8? 0:8;
-          const dir = side == 0? -1: 1; 
+          const side = mouse.getPosIndex()%8 < this.pieceGrabbed%8? 0:7;
+          const dir = side == 0? -1: 1;
           for (let i = 1; i <= Math.abs(side-this.pieceGrabbed%8); i++) {
             let curr = this.pieceGrabbed+i*dir
             if (this.posArray[curr] !== 0 && curr != mouse.getPosIndex()) {
@@ -104,9 +124,9 @@ class GameState {
 
         // vertical
         {
-          const side = Math.floor(mouse.getPosIndex()/8) < Math.floor(this.pieceGrabbed/8)? 0:8;
+          const side = Math.floor(mouse.getPosIndex()/8) < Math.floor(this.pieceGrabbed/8)? 0:7;
           const dir = side == 0? -1: 1; 
-          for (let i = 1; i <= Math.abs(side-Math.floor(this.pieceGrabbed/8)); i++) {
+          for (let i = 1; i <= Math.abs(side-(Math.floor(this.pieceGrabbed/8))); i++) {
             let curr = this.pieceGrabbed+8*i*dir
             if (this.posArray[curr] !== 0 && curr != mouse.getPosIndex()) {
               break
@@ -124,7 +144,14 @@ class GameState {
         break;
 
       case pieces.King:
-        console.log("King");
+        for (let i = -1; i < 2; i++) {
+          if (Math.floor((this.pieceGrabbed+i*8)/8) != Math.floor(mouse.getPosIndex()/8)) continue;
+          for (let j = -1; j < 2; j++) {
+            if (i == 0 && j == 0) continue;
+            const curr = this.pieceGrabbed +i*8 +j
+            if (curr == mouse.getPosIndex()) return true
+          }
+        }
         break;
 
       default:
