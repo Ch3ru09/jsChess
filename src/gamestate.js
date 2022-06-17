@@ -83,65 +83,13 @@ class GameState {
         break;
 
       case pieces.Bishop:
-        const side = Math.floor(mouse.getPosIndex()/8) < Math.floor(this.pieceGrabbed/8)? 0:7;
-        const dir = side == 0? -1: 1;
-        const blocked = [];
-        for (let i = 1; i <= Math.abs(side-(Math.floor(this.pieceGrabbed/8))); i++) {
-          if (blocked.length == 2) break
-          for (let j = 0; j < 2; j++) {
-            if (blocked.includes(j)) continue;
-            
-            let curr = this.pieceGrabbed + dir*8*i + j*i*2 - i;
-            if (curr > 64 || curr < 0) continue;
-            if (Math.floor(curr/8) != Math.floor(this.pieceGrabbed/8) + dir*i) continue
-            
-            if (this.posArray[curr] !== 0 && curr !== mouse.getPosIndex()) {
-              blocked.push(j)
-              continue
-            }
-            if (mouse.getPosIndex() == curr) {
-              return true
-            }
-          }
-        }
-        break;
+        return this.bishopMove()
 
       case pieces.Rook:
-        // horizontal
-        {
-          const side = mouse.getPosIndex()%8 < this.pieceGrabbed%8? 0:7;
-          const dir = side == 0? -1: 1;
-          for (let i = 1; i <= Math.abs(side-this.pieceGrabbed%8); i++) {
-            let curr = this.pieceGrabbed+i*dir
-            if (this.posArray[curr] !== 0 && curr != mouse.getPosIndex()) {
-              break
-            }
-            if (mouse.getPosIndex() == curr) {
-              return true
-            }
-          }
-        }
-
-        // vertical
-        {
-          const side = Math.floor(mouse.getPosIndex()/8) < Math.floor(this.pieceGrabbed/8)? 0:7;
-          const dir = side == 0? -1: 1; 
-          for (let i = 1; i <= Math.abs(side-(Math.floor(this.pieceGrabbed/8))); i++) {
-            let curr = this.pieceGrabbed+8*i*dir
-            if (this.posArray[curr] !== 0 && curr != mouse.getPosIndex()) {
-              break
-            }
-            if (mouse.getPosIndex() == curr) {
-              return true
-            }
-          }
-        }
-
-        break;
+        return this.rookMove()
 
       case pieces.Queen:
-        console.log("Queen");
-        break;
+        return this.bishopMove() || this.rookMove()
 
       case pieces.King:
         for (let i = -1; i < 2; i++) {
@@ -163,6 +111,64 @@ class GameState {
 
   canDoublePush(pawn) {
     if (Math.floor(pawn/8)+1 == (this.isPieceLight(pawn)? 7: 2)) return true
+    return false
+  }
+
+  bishopMove() {
+    const side = Math.floor(mouse.getPosIndex()/8) < Math.floor(this.pieceGrabbed/8)? 0:7;
+    const dir = side == 0? -1: 1;
+    const blocked = [];
+    for (let i = 1; i <= Math.abs(side-(Math.floor(this.pieceGrabbed/8))); i++) {
+      if (blocked.length == 2) break
+      for (let j = 0; j < 2; j++) {
+        if (blocked.includes(j)) continue;
+        
+        let curr = this.pieceGrabbed + dir*8*i + j*i*2 - i;
+        if (curr > 64 || curr < 0) continue;
+        if (Math.floor(curr/8) != Math.floor(this.pieceGrabbed/8) + dir*i) continue
+        
+        if (this.posArray[curr] !== 0 && curr !== mouse.getPosIndex()) {
+          blocked.push(j)
+          continue
+        }
+        if (mouse.getPosIndex() == curr) {
+          return true
+        }
+      }
+    }
+    return false
+  }
+
+  rookMove() {
+    // horizontal
+    {
+      const side = mouse.getPosIndex()%8 < this.pieceGrabbed%8? 0:7;
+      const dir = side == 0? -1: 1;
+      for (let i = 1; i <= Math.abs(side-this.pieceGrabbed%8); i++) {
+        let curr = this.pieceGrabbed+i*dir
+        if (this.posArray[curr] !== 0 && curr != mouse.getPosIndex()) {
+          break
+        }
+        if (mouse.getPosIndex() == curr) {
+          return true
+        }
+      }
+    }
+
+    // vertical
+    {
+      const side = Math.floor(mouse.getPosIndex()/8) < Math.floor(this.pieceGrabbed/8)? 0:7;
+      const dir = side == 0? -1: 1; 
+      for (let i = 1; i <= Math.abs(side-(Math.floor(this.pieceGrabbed/8))); i++) {
+        let curr = this.pieceGrabbed+8*i*dir
+        if (this.posArray[curr] !== 0 && curr != mouse.getPosIndex()) {
+          break
+        }
+        if (mouse.getPosIndex() == curr) {
+          return true
+        }
+      }
+    }
     return false
   }
 }
