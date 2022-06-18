@@ -6,6 +6,7 @@ class GameState {
     this.pieceOn = null;
     this.pieceGrabbed = null;
     this.enPassant = null;
+    this.epCheck = false
     this.canCastle = 0; // 1111
                          // KQkq
     this.castling = {"K": 8, "Q": 4, "k": 2, "q": 1};
@@ -43,11 +44,15 @@ class GameState {
     return (Math.abs(this.posArray[piecePos]) & 8) == 8 ? true: false;
   }
 
+  getPiece(piece) {
+    return (Math.abs(this.posArray[piece]) << 29) >>> 29
+  }
+
   checkLegal() {
     if (!mouse.inBoard) return false;
-    if (this.isSameColor(this.playing)) return false;
+    if (this.isSameColor(this.playing) && this.pieceGrabbed != 4 && this.pieceGrabbed != 60) return false;
 
-    switch ((Math.abs(this.posArray[this.pieceGrabbed]) << 29) >>> 29) {
+    switch (this.getPiece(this.pieceGrabbed)) {
       case pieces.Pawn:
         let direction = this.isPieceLight(this.pieceGrabbed)? -1: 1;
         
@@ -61,6 +66,7 @@ class GameState {
           
           if (this.canDoublePush(this.pieceGrabbed)) {
             this.enPassant = this.pieceGrabbed+(8*direction);
+            this.epCheck = true;
             return true;
           }
         }
@@ -79,7 +85,15 @@ class GameState {
         break;
 
       case pieces.Knight:
-        console.log("Knight");
+        const side = Math.floor(mouse.getPosIndex()/8) < Math.floor(this.pieceGrabbed/8)? 0:7;
+        const dir = side == 0? -1: 1;
+        for (let i = 1; i <= 2; i++) {
+          for (let j = 0; j < 2; j++) {
+            let xdelta = i == 1 ? 2: 1
+            let curr = this.pieceGrabbed + i*8*dir + j*2*xdelta-xdelta
+            if (mouse.getPosIndex() == curr) return true;
+          }
+        }
         break;
 
       case pieces.Bishop:
@@ -92,6 +106,8 @@ class GameState {
         return this.bishopMove() || this.rookMove()
 
       case pieces.King:
+        if (this.getPiece(mouse.getPosIndex()) != pieces.Rook && this.isSameColor(this.playing)) return false;
+
         for (let i = -1; i < 2; i++) {
           if (Math.floor((this.pieceGrabbed+i*8)/8) != Math.floor(mouse.getPosIndex()/8)) continue;
           for (let j = -1; j < 2; j++) {
@@ -170,6 +186,10 @@ class GameState {
       }
     }
     return false
+  }
+
+  checkCasle() {
+
   }
 }
 

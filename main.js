@@ -47,6 +47,11 @@ function handleMouseUp() {
     gameState.posArray[mouse.getPosIndex()] = -gameState.posArray[gameState.pieceGrabbed];
     gameState.posArray[gameState.pieceGrabbed] = 0;
     gameState.playing ^= 24;
+    if (gameState.epCheck) {
+      gameState.epCheck = false;
+    } else {
+      gameState.enPassant = null;
+    }
   } else {
     gameState.posArray[gameState.pieceGrabbed] *= -1;
     gameState.pieceGrabbed = null;
@@ -55,7 +60,7 @@ function handleMouseUp() {
 
 
 // gameState.decode("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
-gameState.decode("rnbqkbnr/pppppppp/8/3N4/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+gameState.decode("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
 
 
 
