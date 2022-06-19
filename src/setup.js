@@ -14,9 +14,9 @@ function loadPieces() {
     let ps = ["pawn", "knight", "bishop", "rook", "queen", "king"];
     
     ps.forEach((p, i) => {
-        piecesAssets[`${8 |(i+1)}`] = new Image();
-        piecesAssets[`${8 |(i+1)}`].src = `./assets/light/${p}.png`;
         piecesAssets[`${16 |(i+1)}`] = new Image();
-        piecesAssets[`${16 |(i+1)}`].src = `./assets/dark/${p}.png`;
+        piecesAssets[`${16 |(i+1)}`].src = `./assets/light/${p}.png`;
+        piecesAssets[`${8 |(i+1)}`] = new Image();
+        piecesAssets[`${8 |(i+1)}`].src = `./assets/dark/${p}.png`;
     });
 } loadPieces();

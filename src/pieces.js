@@ -9,7 +9,7 @@ class Pieces {
     this.Queen = 5;
     this.King = 6;
 
-    this.Light = 8;
-    this.Dark = 16;
+    this.Light = 16;
+    this.Dark = 8;
   }
 }

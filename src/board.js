@@ -37,25 +37,27 @@ class Board {
   }
 
   drawPieces() {
+    let grabbed;
     gameState.posArray.forEach((s, i) => {
       ctx.fillStyle = "#000";
       ctx.fillText(`${i}`, (i % 8)*unit + 0.1*unit, Math.floor(i / 8)*unit + 0.2*unit, 100, 100)
       
       if (s == 0) return;
       var a, coor
+
       if (Number(s) < 0) {
-        // min and max to keep piece within board
-        // coor = { x: Math.min(Math.max(mouse.pos.x-this.x-unit/2, 0), this.w-unit), y: Math.min(Math.max(mouse.pos.y-this.y-unit/2, 0), this.w-unit)};
-        coor = { x: mouse.pos.x-this.x-unit/2, y: mouse.pos.y-this.y-unit/2};
-        // to get correct asset
-        a = -s;
+        grabbed = -s;
       } else {
         coor = { x: (i % 8)*unit, y: Math.floor(i / 8)*unit }
         a = s;
+        ctx.drawImage(piecesAssets[`${a}`], coor.x, coor.y, unit, unit)
       }
 
-      ctx.drawImage(piecesAssets[`${a}`], coor.x, coor.y, unit, unit)
     });
+    if (grabbed) {
+      var coor = { x: mouse.pos.x-this.x-unit/2, y: mouse.pos.y-this.y-unit/2}
+      ctx.drawImage(piecesAssets[`${grabbed}`], coor.x, coor.y, unit, unit)
+    }
   }
 
   resize() {

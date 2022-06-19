@@ -1,6 +1,6 @@
 class GameState {
   constructor() {
-    // 8: Light, 16: Dark
+    // 16: Light, 8: Dark
     this.playing = 0;
     this.posArray = Array(64).fill(0);
     this.pieceOn = null;
@@ -16,7 +16,7 @@ class GameState {
   decode(fencode) {
     this.posArray = Array(64).fill(0);
     const info = fencode.split(" ");
-    this.playing = info[1] == "w"? 8: 16;
+    this.playing = info[1] == "w"? 16: 8;
     info[2].split("").forEach(s => {this.canCastle |= this.castling[s]})
     
     const letterToPiece = {
@@ -41,16 +41,20 @@ class GameState {
   }
 
   isPieceLight(piecePos) {
-    return (Math.abs(this.posArray[piecePos]) & 8) == 8 ? true: false;
+    return (Math.abs(this.posArray[piecePos]) & 16) == 16 ? true: false;
   }
 
   getPiece(piece) {
     return (Math.abs(this.posArray[piece]) << 29) >>> 29
   }
 
+  getPieceColor(piece) {
+    return this.posArray[piece] & 24;
+  }
+
   checkLegal() {
     if (!mouse.inBoard) return false;
-    if (this.isSameColor(this.playing) && this.pieceGrabbed != 4 && this.pieceGrabbed != 60) return false;
+    if (this.isSameColor(this.playing) && this.getPiece(this.pieceGrabbed) != pieces.King) return false;
 
     switch (this.getPiece(this.pieceGrabbed)) {
       case pieces.Pawn:
@@ -106,14 +110,34 @@ class GameState {
         return this.bishopMove() || this.rookMove()
 
       case pieces.King:
-        if (this.getPiece(mouse.getPosIndex()) != pieces.Rook && this.isSameColor(this.playing)) return false;
+        test: if (this.isSameColor(this.playing)) {
+          if (this.getPiece(mouse.getPosIndex()) == pieces.Rook) {
+            if (
+              this.doCastle(
+                this.checkCastle(this.pieceOn)
+              )
+            ) {
+              if (this.canCastle == 15) {
+                this.canCastle ^= (((this.playing/(2**3))**2)*3)
+              }
+              
+              return true
+            }
+          }
+          return false
+        }
 
         for (let i = -1; i < 2; i++) {
           if (Math.floor((this.pieceGrabbed+i*8)/8) != Math.floor(mouse.getPosIndex()/8)) continue;
           for (let j = -1; j < 2; j++) {
             if (i == 0 && j == 0) continue;
             const curr = this.pieceGrabbed +i*8 +j
-            if (curr == mouse.getPosIndex()) return true
+            if (curr == mouse.getPosIndex()) {
+              if (this.canCastle == 15) {
+                this.canCastle ^= (((this.playing/(2**3))**2)*3)
+              }
+              return true
+            }
           }
         }
         break;
@@ -188,8 +212,32 @@ class GameState {
     return false
   }
 
-  checkCasle() {
+  checkCastle(piece) {
+    if (![0, 7, 56, 63].includes(piece)) return;
+    var curr = (piece/7)%7+1
+    if (piece/7 > 4) {
+      curr = 2**curr;
+    }
+    if ((this.canCastle & curr) === 0) return;
 
+    let min = Math.min(piece, this.pieceGrabbed) +1;
+    let max = Math.max(piece, this.pieceGrabbed);
+    for (let i = min; i < max; i++) {
+      if (this.posArray[i] !== 0) return false
+    }
+    
+    return Math.abs(piece-this.pieceGrabbed)/(piece-this.pieceGrabbed)
+  }
+
+  doCastle(castleMove) {
+    if (!castleMove) return
+
+    this.posArray[this.pieceGrabbed] = 0;
+    this.posArray[this.pieceGrabbed+castleMove*2] = this.playing | pieces.King;
+    this.posArray[this.pieceGrabbed+castleMove] = this.playing | pieces.Rook;
+    this.posArray[(castleMove+1)*3.5 + Math.floor(this.pieceGrabbed/8)*8] = 0;
+    
+    return true
   }
 }
 
