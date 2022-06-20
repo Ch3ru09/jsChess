@@ -104,10 +104,10 @@ class GameState {
         return this.bishopMove()
 
       case pieces.Rook:
-        return this.rookMove()
+        return this.handleRookMove()
 
       case pieces.Queen:
-        return this.bishopMove() || this.rookMove()
+        return this.bishopMove() || this.handleRookMove()
 
       case pieces.King:
         if (this.isSameColor(this.playing)) {
@@ -183,37 +183,60 @@ class GameState {
     return false
   }
 
-  rookMove() {
+  handleRookMove() {
+    return (
     // horizontal
-    {
-      const side = mouse.getPosIndex()%8 < this.pieceGrabbed%8? 0:7;
-      const dir = side == 0? -1: 1;
-      for (let i = 1; i <= Math.abs(side-this.pieceGrabbed%8); i++) {
-        let curr = this.pieceGrabbed+i*dir
-        if (this.posArray[curr] !== 0 && curr != mouse.getPosIndex()) {
-          break
-        }
-        if (mouse.getPosIndex() == curr) {
-          return true
-        }
-      }
-    }
-
+    this.checkRookMove(mouse.getPosIndex()%8, this.pieceGrabbed%8, 1) 
+    ||
     // vertical
-    {
-      const side = Math.floor(mouse.getPosIndex()/8) < Math.floor(this.pieceGrabbed/8)? 0:7;
-      const dir = side == 0? -1: 1; 
-      for (let i = 1; i <= Math.abs(side-(Math.floor(this.pieceGrabbed/8))); i++) {
-        let curr = this.pieceGrabbed+8*i*dir
-        if (this.posArray[curr] !== 0 && curr != mouse.getPosIndex()) {
-          break
-        }
-        if (mouse.getPosIndex() == curr) {
-          return true
-        }
+    this.checkRookMove(Math.floor(mouse.getPosIndex()/8), Math.floor(this.pieceGrabbed/8), 8)
+    
+    );
+    // horizontal
+    // {
+    //   const side = mouse.getPosIndex()%8 < this.pieceGrabbed%8? 0:7;
+    //   const dir = side == 0? -1: 1;
+    //   for (let i = 1; i <= Math.abs(side-this.pieceGrabbed%8); i++) {
+    //     let curr = this.pieceGrabbed+i*dir
+    //     if (this.posArray[curr] !== 0 && curr != mouse.getPosIndex()) {
+    //       break
+    //     }
+    //     if (mouse.getPosIndex() == curr) {
+    //       return true
+    //     }
+    //   }
+    // }
+    
+    // vertical
+    // {
+    //   const side = Math.floor(mouse.getPosIndex()/8) < Math.floor(this.pieceGrabbed/8)? 0:7;
+    //   const dir = side == 0? -1: 1; 
+    //   for (let i = 1; i <= Math.abs(side-(Math.floor(this.pieceGrabbed/8))); i++) {
+    //     let curr = this.pieceGrabbed+8*i*dir
+    //     if (this.posArray[curr] !== 0 && curr != mouse.getPosIndex()) {
+    //       break
+    //     }
+    //     if (mouse.getPosIndex() == curr) {
+    //       return true
+    //     }
+    //   }
+    // }
+    // return false
+  }
+
+  checkRookMove(mouseLine, pieceLine, mod) {
+    const side = Math.floor(mouseLine) < pieceLine? 0:7;
+    const dir = side == 0? -1: 1; 
+    for (let i = 1; i <= Math.abs(side-(pieceLine)); i++) {
+      let curr = this.pieceGrabbed+ mod*i*dir
+      if (this.posArray[curr] !== 0 && curr != mouse.getPosIndex()) {
+        break
+      }
+      if (mouse.getPosIndex() == curr) {
+        return true
       }
     }
-    return false
+    return false;
   }
 
   handleCastle(rookPos) {
