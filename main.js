@@ -42,9 +42,11 @@ function handleMouseUp() {
   if (gameState.pieceGrabbed !== null && !mouse.inBoard) return gameState.posArray[gameState.pieceGrabbed] *= -1;
   if (gameState.pieceOn === undefined) return;
   if (gameState.pieceGrabbed === null) return;
-
-  if (mouse.getPosIndex() != gameState.pieceGrabbed && gameState.checkLegal()) {
-    gameState.posArray[mouse.getPosIndex()] = -gameState.posArray[gameState.pieceGrabbed];
+  const isLegal = gameState.checkLegal()
+  if (mouse.getPosIndex() != gameState.pieceGrabbed && isLegal) {
+    if (isLegal != pieces.King) {
+      gameState.posArray[mouse.getPosIndex()] = -gameState.posArray[gameState.pieceGrabbed];
+    }
     gameState.posArray[gameState.pieceGrabbed] = 0;
     gameState.playing ^= 24;
     if (gameState.epCheck) {

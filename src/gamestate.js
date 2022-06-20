@@ -121,10 +121,25 @@ class GameState {
                 this.canCastle ^= (((this.playing/(2**3))**2)*3)
               }
               
-              return true
+              return pieces.King;
             }
           }
           return false
+        }
+        for (let i = 0; i < 2; i++) {
+          if (mouse.getPosIndex() !== this.pieceGrabbed+i*4-2) continue
+          if (
+            this.doCastle(
+              this.checkCastle(i*7+((this.playing-8)*7))
+            )
+          ) {
+            if (this.canCastle == 15) {
+              this.canCastle ^= (((this.playing/(2**3))**2)*3)
+            }
+            
+            return pieces.King;
+          }
+          continue
         }
 
         for (let i = -1; i < 2; i++) {
@@ -140,6 +155,9 @@ class GameState {
             }
           }
         }
+        
+        
+
         break;
 
       default:
