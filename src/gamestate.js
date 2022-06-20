@@ -110,35 +110,21 @@ class GameState {
         return this.bishopMove() || this.rookMove()
 
       case pieces.King:
-        test: if (this.isSameColor(this.playing)) {
+        if (this.isSameColor(this.playing)) {
           if (this.getPiece(mouse.getPosIndex()) == pieces.Rook) {
-            if (
-              this.doCastle(
-                this.checkCastle(this.pieceOn)
-              )
-            ) {
-              if (this.canCastle == 15) {
-                this.canCastle ^= (((this.playing/(2**3))**2)*3)
-              }
-              
+            if (this.handleCastle(this.pieceOn)) {
               return pieces.King;
             }
           }
           return false
         }
+
         for (let i = 0; i < 2; i++) {
           if (mouse.getPosIndex() !== this.pieceGrabbed+i*4-2) continue
-          if (
-            this.doCastle(
-              this.checkCastle(i*7+((this.playing-8)*7))
-            )
-          ) {
-            if (this.canCastle == 15) {
-              this.canCastle ^= (((this.playing/(2**3))**2)*3)
-            }
-            
-            return pieces.King;
+          if (this.handleCastle(i*7+((this.playing-8)*7))) {
+            return pieces.King
           }
+
           continue
         }
 
@@ -230,6 +216,21 @@ class GameState {
     return false
   }
 
+  handleCastle(rookPos) {
+    if (
+      this.doCastle(
+        this.checkCastle(rookPos)
+      )
+    ) {
+      if (this.canCastle == 15) {
+        this.canCastle ^= (((this.playing/(2**3))**2)*3)
+      }
+      
+      return true;
+    }
+    return;
+  }
+  
   checkCastle(piece) {
     if (![0, 7, 56, 63].includes(piece)) return;
     var curr = (piece/7)%7+1
