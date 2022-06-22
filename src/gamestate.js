@@ -282,7 +282,9 @@ class GameState {
     return true
   }
 
-  
+  checkChecks(piecePos) {
+    
+  }
 }
 
 function xor(a, b) {

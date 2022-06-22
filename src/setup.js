@@ -20,3 +20,6 @@ function loadPieces() {
         piecesAssets[`${8 |(i+1)}`].src = `./assets/dark/${p}.png`;
     });
 } loadPieces();
+
+let spriteSheet = new Image();
+spriteSheet.src = "./assets/spritesheets/default.png";
