@@ -3,7 +3,9 @@ class Mouse {
         this.pos = {x: 0, y: 0};
         // note: this is chess coords but (0,0) is top left
         this.posInBoard = {x: 0, y: 0};
-        this.inBoard = true;
+        this.inBoard = false;
+        this.posIndex = null;
+
     }
 
     isInBoard() {

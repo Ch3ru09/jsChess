@@ -21,6 +21,7 @@ function handleMouseMove(e) {
   mouse.inBoard = mouse.isInBoard();
   if (mouse.inBoard) {  
     mouse.posInBoard = mouse.getPosInBoard();
+    mouse.posIndex = mouse.getPosIndex();
   } else {
     mouse.posInBoard = {x: null, y: null};
     gameState.pieceOn = undefined;
@@ -43,9 +44,9 @@ function handleMouseUp() {
   if (gameState.pieceOn === undefined) return;
   if (gameState.pieceGrabbed === null) return;
   const isLegal = gameState.checkLegal()
-  if (mouse.getPosIndex() != gameState.pieceGrabbed && isLegal) {
+  if (mouse.posIndex != gameState.pieceGrabbed && isLegal) {
     if (isLegal != pieces.King) {
-      gameState.posArray[mouse.getPosIndex()] = -gameState.posArray[gameState.pieceGrabbed];
+      gameState.posArray[mouse.posIndex] = -gameState.posArray[gameState.pieceGrabbed];
     }
     gameState.posArray[gameState.pieceGrabbed] = 0;
     gameState.playing ^= 24;
@@ -63,8 +64,6 @@ function handleMouseUp() {
 
 // gameState.decode("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
 gameState.decode("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
-
-
 
 function animation() {
   draw();

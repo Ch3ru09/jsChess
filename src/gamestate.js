@@ -2,7 +2,7 @@ class GameState {
   constructor() {
     // 16: Light, 8: Dark
     this.playing = 0;
-    this.posArray = Array(64).fill(0);
+    this.posArray = Object.seal(Array(64).fill(0));
     this.pieceOn = null;
     this.pieceGrabbed = null;
     this.enPassant = null;
@@ -37,7 +37,7 @@ class GameState {
   }
 
   isSameColor(playing) {
-    return (Math.abs(this.posArray[mouse.getPosIndex()]) & playing) == playing ? true: false;
+    return (Math.abs(this.posArray[mouse.posIndex]) & playing) == playing ? true: false;
   }
 
   isPieceLight(piecePos) {
@@ -63,7 +63,7 @@ class GameState {
 
         // get 1 and 2 for 1 forwards or 2 forwards:
         for (let i = 1; i <= 2; i++) {
-          if (mouse.getPosIndex() != this.pieceGrabbed+(8*direction*(i))) continue;
+          if (mouse.posIndex != this.pieceGrabbed+(8*direction*(i))) continue;
           if (this.pieceOn != null) return false;
           if (this.posArray[this.pieceGrabbed+(8*direction)] != 0) return false
           if (i != 2) return true;
@@ -77,8 +77,8 @@ class GameState {
 
         // get -1 and 1 for side captures
         for (let i of [-1, 1]) {
-          if (mouse.getPosIndex() != this.pieceGrabbed+(8*direction+(i))) continue;
-          if (mouse.getPosIndex() == this.enPassant) {
+          if (mouse.posIndex != this.pieceGrabbed+(8*direction+(i))) continue;
+          if (mouse.posIndex == this.enPassant) {
             this.posArray[this.enPassant+(-direction*8)] = 0;
             return true;
           }
@@ -89,13 +89,13 @@ class GameState {
         break;
 
       case pieces.Knight:
-        const side = Math.floor(mouse.getPosIndex()/8) < Math.floor(this.pieceGrabbed/8)? 0:7;
+        const side = Math.floor(mouse.posIndex/8) < Math.floor(this.pieceGrabbed/8)? 0:7;
         const dir = side == 0? -1: 1;
         for (let i = 1; i <= 2; i++) {
           for (let j = 0; j < 2; j++) {
             let xdelta = i == 1 ? 2: 1
             let curr = this.pieceGrabbed + i*8*dir + j*2*xdelta-xdelta
-            if (mouse.getPosIndex() == curr) return true;
+            if (mouse.posIndex == curr) return true;
           }
         }
         break;
@@ -111,7 +111,7 @@ class GameState {
 
       case pieces.King:
         if (this.isSameColor(this.playing)) {
-          if (this.getPiece(mouse.getPosIndex()) == pieces.Rook) {
+          if (this.getPiece(mouse.posIndex) == pieces.Rook) {
             if (this.handleCastle(this.pieceOn)) {
               return pieces.King;
             }
@@ -120,7 +120,7 @@ class GameState {
         }
 
         for (let i = 0; i < 2; i++) {
-          if (mouse.getPosIndex() !== this.pieceGrabbed+i*4-2) continue
+          if (mouse.posIndex !== this.pieceGrabbed+i*4-2) continue
           if (this.handleCastle(i*7+((this.playing-8)*7))) {
             return pieces.King
           }
@@ -129,11 +129,11 @@ class GameState {
         }
 
         for (let i = -1; i < 2; i++) {
-          if (Math.floor((this.pieceGrabbed+i*8)/8) != Math.floor(mouse.getPosIndex()/8)) continue;
+          if (Math.floor((this.pieceGrabbed+i*8)/8) != Math.floor(mouse.posIndex/8)) continue;
           for (let j = -1; j < 2; j++) {
             if (i == 0 && j == 0) continue;
             const curr = this.pieceGrabbed +i*8 +j
-            if (curr == mouse.getPosIndex()) {
+            if (curr == mouse.posIndex) {
               if (this.canCastle == 15) {
                 this.canCastle ^= (((this.playing/(2**3))**2)*3)
               }
@@ -159,7 +159,7 @@ class GameState {
   }
 
   bishopMove() {
-    const side = Math.floor(mouse.getPosIndex()/8) < Math.floor(this.pieceGrabbed/8)? 0:7;
+    const side = Math.floor(mouse.posIndex/8) < Math.floor(this.pieceGrabbed/8)? 0:7;
     const dir = side == 0? -1: 1;
     const blocked = [];
     for (let i = 1; i <= Math.abs(side-(Math.floor(this.pieceGrabbed/8))); i++) {
@@ -171,11 +171,11 @@ class GameState {
         if (curr > 64 || curr < 0) continue;
         if (Math.floor(curr/8) != Math.floor(this.pieceGrabbed/8) + dir*i) continue
         
-        if (this.posArray[curr] !== 0 && curr !== mouse.getPosIndex()) {
+        if (this.posArray[curr] !== 0 && curr !== mouse.posIndex) {
           blocked.push(j)
           continue
         }
-        if (mouse.getPosIndex() == curr) {
+        if (mouse.posIndex == curr) {
           return true
         }
       }
@@ -186,22 +186,22 @@ class GameState {
   handleRookMove() {
     return (
     // horizontal
-    this.checkRookMove(mouse.getPosIndex()%8, this.pieceGrabbed%8, 1) 
+    this.checkRookMove(mouse.posIndex%8, this.pieceGrabbed%8, 1) 
     ||
     // vertical
-    this.checkRookMove(Math.floor(mouse.getPosIndex()/8), Math.floor(this.pieceGrabbed/8), 8)
+    this.checkRookMove(Math.floor(mouse.posIndex/8), Math.floor(this.pieceGrabbed/8), 8)
     
     );
     // horizontal
     // {
-    //   const side = mouse.getPosIndex()%8 < this.pieceGrabbed%8? 0:7;
+    //   const side = mouse.posIndex%8 < this.pieceGrabbed%8? 0:7;
     //   const dir = side == 0? -1: 1;
     //   for (let i = 1; i <= Math.abs(side-this.pieceGrabbed%8); i++) {
     //     let curr = this.pieceGrabbed+i*dir
-    //     if (this.posArray[curr] !== 0 && curr != mouse.getPosIndex()) {
+    //     if (this.posArray[curr] !== 0 && curr != mouse.posIndex) {
     //       break
     //     }
-    //     if (mouse.getPosIndex() == curr) {
+    //     if (mouse.posIndex == curr) {
     //       return true
     //     }
     //   }
@@ -209,14 +209,14 @@ class GameState {
     
     // vertical
     // {
-    //   const side = Math.floor(mouse.getPosIndex()/8) < Math.floor(this.pieceGrabbed/8)? 0:7;
+    //   const side = Math.floor(mouse.posIndex/8) < Math.floor(this.pieceGrabbed/8)? 0:7;
     //   const dir = side == 0? -1: 1; 
     //   for (let i = 1; i <= Math.abs(side-(Math.floor(this.pieceGrabbed/8))); i++) {
     //     let curr = this.pieceGrabbed+8*i*dir
-    //     if (this.posArray[curr] !== 0 && curr != mouse.getPosIndex()) {
+    //     if (this.posArray[curr] !== 0 && curr != mouse.posIndex) {
     //       break
     //     }
-    //     if (mouse.getPosIndex() == curr) {
+    //     if (mouse.posIndex == curr) {
     //       return true
     //     }
     //   }
@@ -229,10 +229,10 @@ class GameState {
     const dir = side == 0? -1: 1; 
     for (let i = 1; i <= Math.abs(side-(pieceLine)); i++) {
       let curr = this.pieceGrabbed+ mod*i*dir
-      if (this.posArray[curr] !== 0 && curr != mouse.getPosIndex()) {
+      if (this.posArray[curr] !== 0 && curr != mouse.posIndex) {
         break
       }
-      if (mouse.getPosIndex() == curr) {
+      if (mouse.posIndex == curr) {
         return true
       }
     }
@@ -281,6 +281,8 @@ class GameState {
     
     return true
   }
+
+  
 }
 
 function xor(a, b) {

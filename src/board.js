@@ -76,9 +76,9 @@ class Board {
       return v*unit;
     });
     
-    if (gameState.posArray[mouse.getPosIndex()] !== 0) {
+    if (gameState.posArray[mouse.posIndex] !== 0) {
       canvas.style.cursor = "grab";
-      gameState.pieceOn = mouse.getPosIndex();
+      gameState.pieceOn = mouse.posIndex;
     } else {
       canvas.style.cursor = "default";
       gameState.pieceOn = null;
