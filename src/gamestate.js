@@ -36,8 +36,8 @@ class GameState {
     });
   }
 
-  isSameColor(playing) {
-    return (Math.abs(this.posArray[mouse.posIndex]) & playing) == playing ? true: false;
+  isSameColor(playing, pos) {
+    return (Math.abs(this.posArray[pos]) & playing) == playing ? true: false;
   }
 
   isPieceLight(piecePos) {
@@ -54,7 +54,7 @@ class GameState {
 
   checkLegal() {
     if (!mouse.inBoard) return false;
-    if (this.isSameColor(this.playing) && this.getPiece(this.pieceGrabbed) != pieces.King) return false;
+    if (this.isSameColor(this.playing, mouse.posIndex) && this.getPiece(this.pieceGrabbed) != pieces.King) return false;
 
     switch (this.getPiece(this.pieceGrabbed)) {
       case pieces.Pawn:
@@ -110,10 +110,10 @@ class GameState {
         return this.bishopMove() || this.handleRookMove()
 
       case pieces.King:
-        if (this.isSameColor(this.playing)) {
+        if (this.isSameColor(this.playing, mouse.posIndex)) {
           if (this.getPiece(mouse.posIndex) == pieces.Rook) {
             if (this.handleCastle(this.pieceOn)) {
-              return pieces.King;
+              return "casled";
             }
           }
           return false
@@ -122,7 +122,7 @@ class GameState {
         for (let i = 0; i < 2; i++) {
           if (mouse.posIndex !== this.pieceGrabbed+i*4-2) continue
           if (this.handleCastle(i*7+((this.playing-8)*7))) {
-            return pieces.King
+            return "casled";
           }
 
           continue
@@ -137,7 +137,7 @@ class GameState {
               if (this.canCastle == 15) {
                 this.canCastle ^= (((this.playing/(2**3))**2)*3)
               }
-              return true
+              return pieces.King;
             }
           }
         }
@@ -192,36 +192,6 @@ class GameState {
     this.checkRookMove(Math.floor(mouse.posIndex/8), Math.floor(this.pieceGrabbed/8), 8)
     
     );
-    // horizontal
-    // {
-    //   const side = mouse.posIndex%8 < this.pieceGrabbed%8? 0:7;
-    //   const dir = side == 0? -1: 1;
-    //   for (let i = 1; i <= Math.abs(side-this.pieceGrabbed%8); i++) {
-    //     let curr = this.pieceGrabbed+i*dir
-    //     if (this.posArray[curr] !== 0 && curr != mouse.posIndex) {
-    //       break
-    //     }
-    //     if (mouse.posIndex == curr) {
-    //       return true
-    //     }
-    //   }
-    // }
-    
-    // vertical
-    // {
-    //   const side = Math.floor(mouse.posIndex/8) < Math.floor(this.pieceGrabbed/8)? 0:7;
-    //   const dir = side == 0? -1: 1; 
-    //   for (let i = 1; i <= Math.abs(side-(Math.floor(this.pieceGrabbed/8))); i++) {
-    //     let curr = this.pieceGrabbed+8*i*dir
-    //     if (this.posArray[curr] !== 0 && curr != mouse.posIndex) {
-    //       break
-    //     }
-    //     if (mouse.posIndex == curr) {
-    //       return true
-    //     }
-    //   }
-    // }
-    // return false
   }
 
   checkRookMove(mouseLine, pieceLine, mod) {
@@ -283,7 +253,18 @@ class GameState {
   }
 
   checkChecks(king) {
+    this.checkPawn(king);
     this.checkBishop(king);
+  }
+
+  checkPawn(king) {
+    const dir = -((this.getPieceColor(king)/8 - 1)*2 -1); // to get 1 and -1 => 1 = dark, -1 = light
+    for (let i = 0; i <= 1; i ++) {
+      let curr = king+dir*8 + i*2-1
+      if (this.posArray[curr] != 0 && !this.isSameColor(this.playing, curr)) {
+        console.log("check")
+      }
+    }
   }
 
   checkKnights(king) {
@@ -297,6 +278,7 @@ class GameState {
       console.log(curr);
     }
   }
+
 }
 
 function xor(a, b) {

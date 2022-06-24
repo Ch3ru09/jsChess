@@ -45,9 +45,13 @@ function handleMouseUp() {
   if (gameState.pieceGrabbed === null) return;
   const isLegal = gameState.checkLegal()
   if (mouse.posIndex != gameState.pieceGrabbed && isLegal) {
-    if (isLegal != pieces.King) {
+    if (isLegal != "casled") {
       gameState.posArray[mouse.posIndex] = -gameState.posArray[gameState.pieceGrabbed];
     }
+    if (isLegal == pieces.King) {
+      gameState.checkChecks(mouse.posIndex);
+    }
+
     gameState.posArray[gameState.pieceGrabbed] = 0;
     gameState.playing ^= 24;
     if (gameState.epCheck) {
