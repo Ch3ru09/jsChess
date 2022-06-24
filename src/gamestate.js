@@ -192,36 +192,6 @@ class GameState {
     this.checkRookMove(Math.floor(mouse.posIndex/8), Math.floor(this.pieceGrabbed/8), 8)
     
     );
-    // horizontal
-    // {
-    //   const side = mouse.posIndex%8 < this.pieceGrabbed%8? 0:7;
-    //   const dir = side == 0? -1: 1;
-    //   for (let i = 1; i <= Math.abs(side-this.pieceGrabbed%8); i++) {
-    //     let curr = this.pieceGrabbed+i*dir
-    //     if (this.posArray[curr] !== 0 && curr != mouse.posIndex) {
-    //       break
-    //     }
-    //     if (mouse.posIndex == curr) {
-    //       return true
-    //     }
-    //   }
-    // }
-    
-    // vertical
-    // {
-    //   const side = Math.floor(mouse.posIndex/8) < Math.floor(this.pieceGrabbed/8)? 0:7;
-    //   const dir = side == 0? -1: 1; 
-    //   for (let i = 1; i <= Math.abs(side-(Math.floor(this.pieceGrabbed/8))); i++) {
-    //     let curr = this.pieceGrabbed+8*i*dir
-    //     if (this.posArray[curr] !== 0 && curr != mouse.posIndex) {
-    //       break
-    //     }
-    //     if (mouse.posIndex == curr) {
-    //       return true
-    //     }
-    //   }
-    // }
-    // return false
   }
 
   checkRookMove(mouseLine, pieceLine, mod) {
@@ -282,8 +252,13 @@ class GameState {
     return true
   }
 
-  checkChecks(piecePos) {
-    
+  checkChecks(king) {
+    this.checkPawn(king);
+  }
+
+  checkPawn(king) {
+    const dir = this.getPieceColor(king);
+    console.log(dir)
   }
 }
 
