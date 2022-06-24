@@ -282,8 +282,20 @@ class GameState {
     return true
   }
 
-  checkChecks(piecePos) {
-    
+  checkChecks(king) {
+    this.checkBishop(king);
+  }
+
+  checkKnights(king) {
+
+  }
+
+  checkBishop(king) {
+    let blocked = [];
+    for (let i = 0; i < 8; i++) {
+      let curr = i - king%8;
+      console.log(curr);
+    }
   }
 }
 
