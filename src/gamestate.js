@@ -11,6 +11,10 @@ class GameState {
                          // KQkq
     this.castling = {"K": 8, "Q": 4, "k": 2, "q": 1};
     this.moves = {halfMove: 0, fullMove: 0};
+
+
+
+    this.drawchecks = [];
   }
 
   decode(fencode) {
@@ -45,7 +49,7 @@ class GameState {
   }
 
   getPiece(piece) {
-    return (Math.abs(this.posArray[piece]) << 29) >>> 29
+    return Math.abs(this.posArray[piece]) & 7;
   }
 
   getPieceColor(piece) {
@@ -238,7 +242,7 @@ class GameState {
       if (this.posArray[i] !== 0) return false
     }
     
-    return Math.abs(piece-this.pieceGrabbed)/(piece-this.pieceGrabbed)
+    return Math.sign(piece-this.pieceGrabbed)
   }
 
   doCastle(castleMove) {
@@ -253,16 +257,18 @@ class GameState {
   }
 
   checkChecks(king) {
-    this.checkPawn(king);
-    this.checkBishop(king);
+    let pawn = this.checkPawn(king);
+    let bishop = this.checkBishop(king);
+
+    console.log(pawn || bishop)
   }
 
   checkPawn(king) {
     const dir = -((this.getPieceColor(king)/8 - 1)*2 -1); // to get 1 and -1 => 1 = dark, -1 = light
     for (let i = 0; i <= 1; i ++) {
       let curr = king+dir*8 + i*2-1
-      if (this.posArray[curr] != 0 && !this.isSameColor(this.playing, curr)) {
-        console.log("check")
+      if (this.getPiece(curr) == pieces.Pawn && !this.isSameColor(this.playing, curr)) {
+        return true;
       }
     }
   }
@@ -272,15 +278,67 @@ class GameState {
   }
 
   checkBishop(king) {
-    let blocked = [];
-    for (let i = 0; i < 8; i++) {
-      let curr = i - king%8;
-      console.log(curr);
+    const blocked = [];
+    this.drawchecks.splice(0, this.drawchecks.length)
+    let max = king%8 < 4? 7-king%8: king%8;
+
+    for (let i = 1; i <= max; i++) {
+      for (let j = 0; j <= 1; j++) {
+        let curr = 2*i*j - i;
+        for (let k of [-1, 1]) {
+          if (containsArr([Math.sign(curr), k], blocked)) continue;
+          let piece = king + curr + k*i*8;
+          if (piece > 63 || piece < 0) continue;
+          if (Math.floor(piece/8) != Math.floor(king/8)+k*i) continue;
+
+          this.drawchecks.push({x: piece%8, y: Math.floor(piece/8)})
+
+          if (this.getPiece(piece) == 0) {
+            continue;
+          }
+          if (this.isSameColor(this.playing, piece)) {
+            if (this.getPiece(piece) == pieces.King) continue;
+            // guard clause, else:
+            blocked.push([Math.sign(curr), k]);
+            continue;
+          }
+          // else :
+          if (this.getPiece(piece) == pieces.Bishop) return true;
+          // guard clause, else:
+          blocked.push([Math.sign(curr), k]);
+          continue;
+        }
+      }
     }
   }
 
+  drawSquares() {
+    this.drawchecks.forEach(p => {
+      ctx.save()
+      ctx.translate(board.x, board.y)
+      ctx.fillStyle = "#88f";
+      ctx.beginPath()
+      ctx.arc(p.x*unit+unit/2+unit/64, p.y*unit+unit/2, unit/8, 0, Math.PI*2, false);
+      ctx.fill()
+      ctx.closePath()
+      ctx.restore()
+    })
+    
+  }
+  
+  
 }
 
 function xor(a, b) {
   return (a && !b) || (!a && b);
 }
+
+function containsArr(arr1, arr2) {
+  for (const a of arr2) {
+    if (JSON.stringify(arr1) == JSON.stringify(a)) {
+      return true;
+    }
+  }
+  return false;
+}
+

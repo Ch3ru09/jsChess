@@ -77,6 +77,7 @@ function animation() {
 function draw() {
   ctx.clearRect(0, 0, W, H);
   board.draw();
+  gameState.drawSquares()
 }
 
 animation();
