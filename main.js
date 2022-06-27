@@ -51,6 +51,7 @@ function handleMouseUp() {
     if (isLegal == pieces.King) {
       gameState.checkChecks(mouse.posIndex);
     }
+    gameState.drawchecks.splice(0, gameState.drawchecks.length);
     gameState.kings.forEach(p => {
       gameState.checkChecks(p);
     })

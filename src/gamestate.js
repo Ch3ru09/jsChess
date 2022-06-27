@@ -150,8 +150,6 @@ class GameState {
             }
           }
         }
-        
-        
 
         break;
 
@@ -204,6 +202,7 @@ class GameState {
   }
 
   checkRookMove(mouseLine, pieceLine, mod) {
+    // mod is for the 8x while moving vertically
     const side = Math.floor(mouseLine) < pieceLine? 0:7;
     const dir = side == 0? -1: 1; 
     for (let i = 1; i <= Math.abs(side-(pieceLine)); i++) {
@@ -266,27 +265,40 @@ class GameState {
   checkChecks(king) {
     let pawn = this.checkPawn(king);
     let bishop = this.checkBishop(king);
+    let knight = this.checkKnight(king); 
+    console.log(pawn || bishop || knight ? true: false)
 
-    console.log(pawn || bishop)
   }
 
   checkPawn(king) {
     const dir = -((this.getPieceColor(king)/8 - 1)*2 -1); // to get 1 and -1 => 1 = dark, -1 = light
     for (let i = 0; i <= 1; i ++) {
       let curr = king+dir*8 + i*2-1
-      if (this.getPiece(curr) == pieces.Pawn && !this.isSameColor(this.posArray[king]&24, curr)) {
+      if (this.getPiece(curr) == pieces.Pawn && !this.isSameColor(this.getPieceColor(king), curr)) {
         return true;
       }
     }
   }
 
-  checkKnights(king) {
+  checkKnight(king) {
+    for (const dir of [-1, 1]) {
+      for (let i = 1; i <= 2; i++) {
+        for (let j = 0; j < 2; j++) {
+          let xdelta = i == 1 ? 2: 1;
+          let piece = king + i*8*dir + j*2*xdelta-xdelta;
+          if (piece > 63 || piece < 0) continue;
+          if (piece%8 != king%8 + j*2*xdelta-xdelta) continue;
 
+          if (!this.isSameColor(this.getPieceColor(king), piece) && this.getPiece(piece) == pieces.Knight) {
+            return true;
+          }
+        }
+      }
+    }
   }
 
   checkBishop(king) {
     const blocked = [];
-    this.drawchecks.splice(0, this.drawchecks.length)
     let max = king%8 < 4? 7-king%8: king%8;
 
     for (let i = 1; i <= max; i++) {
@@ -304,7 +316,7 @@ class GameState {
           if (this.getPiece(piece) == pieces.King && !this.kings.includes(piece)) {
             continue;
           }
-          if (this.isSameColor(this.posArray[king] &24, piece)) {
+          if (this.isSameColor(this.getPieceColor(king), piece)) {
             
             // guard clause, else:
             blocked.push([Math.sign(curr), k]);
@@ -324,7 +336,7 @@ class GameState {
     this.drawchecks.forEach(p => {
       ctx.save()
       ctx.translate(board.x, board.y)
-      ctx.fillStyle = "#88f";
+      ctx.fillStyle = "#448";
       ctx.beginPath()
       ctx.arc(p.x*unit+unit/2+unit/64, p.y*unit+unit/2, unit/8, 0, Math.PI*2, false);
       ctx.fill()
@@ -350,3 +362,4 @@ function containsArr(arr1, arr2) {
   return false;
 }
 
+// *** to use: this.drawchecks.push({x: piece%8, y: Math.floor(piece/8)})
