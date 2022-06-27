@@ -51,7 +51,11 @@ function handleMouseUp() {
     if (isLegal == pieces.King) {
       gameState.checkChecks(mouse.posIndex);
     }
-
+    gameState.kings.forEach(p => {
+      gameState.checkChecks(p);
+    })
+    
+    
     gameState.posArray[gameState.pieceGrabbed] = 0;
     gameState.playing ^= 24;
     if (gameState.epCheck) {
@@ -66,7 +70,6 @@ function handleMouseUp() {
 }
 
 
-// gameState.decode("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
 gameState.decode("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
 
 function animation() {

@@ -12,7 +12,8 @@ class GameState {
     this.castling = {"K": 8, "Q": 4, "k": 2, "q": 1};
     this.moves = {halfMove: 0, fullMove: 0};
 
-
+    // 0: dark, 1: light
+    this.kings = new Array(2).fill(0);
 
     this.drawchecks = [];
   }
@@ -33,6 +34,9 @@ class GameState {
         if (!isNaN(Number(s))) {
           c += Number(s);
           return;
+        }
+        if (s.toLowerCase() == "k") {
+          this.kings.splice(s == s.toLowerCase()? 0: 1, 1, c);
         }
         this.posArray[c] = (s == s.toLowerCase()? pieces.Dark: pieces.Light) | letterToPiece[s.toLowerCase()];
         c++;
@@ -141,6 +145,7 @@ class GameState {
               if (this.canCastle == 15) {
                 this.canCastle ^= (((this.playing/(2**3))**2)*3)
               }
+              this.kings.splice(this.playing/8-1, 1, mouse.posIndex);
               return pieces.King;
             }
           }
@@ -249,7 +254,9 @@ class GameState {
     if (!castleMove) return
 
     this.posArray[this.pieceGrabbed] = 0;
-    this.posArray[this.pieceGrabbed+castleMove*2] = this.playing | pieces.King;
+    let kingPos = this.pieceGrabbed+castleMove*2;
+    this.posArray[kingPos] = this.playing | pieces.King;
+    this.kings.splice(this.playing/8-1, 1, kingPos);
     this.posArray[this.pieceGrabbed+castleMove] = this.playing | pieces.Rook;
     this.posArray[(castleMove+1)*3.5 + Math.floor(this.pieceGrabbed/8)*8] = 0;
     
@@ -267,7 +274,7 @@ class GameState {
     const dir = -((this.getPieceColor(king)/8 - 1)*2 -1); // to get 1 and -1 => 1 = dark, -1 = light
     for (let i = 0; i <= 1; i ++) {
       let curr = king+dir*8 + i*2-1
-      if (this.getPiece(curr) == pieces.Pawn && !this.isSameColor(this.playing, curr)) {
+      if (this.getPiece(curr) == pieces.Pawn && !this.isSameColor(this.posArray[king]&24, curr)) {
         return true;
       }
     }
@@ -291,13 +298,14 @@ class GameState {
           if (piece > 63 || piece < 0) continue;
           if (Math.floor(piece/8) != Math.floor(king/8)+k*i) continue;
 
-          this.drawchecks.push({x: piece%8, y: Math.floor(piece/8)})
-
           if (this.getPiece(piece) == 0) {
             continue;
           }
-          if (this.isSameColor(this.playing, piece)) {
-            if (this.getPiece(piece) == pieces.King) continue;
+          if (this.getPiece(piece) == pieces.King && !this.kings.includes(piece)) {
+            continue;
+          }
+          if (this.isSameColor(this.posArray[king] &24, piece)) {
+            
             // guard clause, else:
             blocked.push([Math.sign(curr), k]);
             continue;
