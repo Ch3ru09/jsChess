@@ -42,6 +42,7 @@ class GameState {
         c++;
       })
     });
+    board.shownArr = this.posArray;
   }
 
   isSameColor(playing, pos) {
@@ -263,11 +264,17 @@ class GameState {
   }
 
   checkChecks(king) {
-    let pawn = this.checkPawn(king);
-    let bishop = this.checkBishop(king);
-    let knight = this.checkKnight(king); 
-    console.log(pawn || bishop || knight ? true: false)
+    const color = this.getPieceColor(king);
 
+    const pawn = this.checkPawn(king);
+    const knight = this.checkKnight(king);
+    const bishop = this.checkBishop(king);
+    const rook = this.checkRook(king);
+    const queen = this.checkRook(king) || this.checkBishop(king);
+
+    const res = ( pawn || bishop || knight || rook || queen ) ? true: false
+
+    return [res, color]
   }
 
   checkPawn(king) {
@@ -299,7 +306,7 @@ class GameState {
 
   checkBishop(king) {
     const blocked = [];
-    let max = king%8 < 4? 7-king%8: king%8;
+    const max = king%8 < 4? 7-king%8: king%8;
 
     for (let i = 1; i <= max; i++) {
       for (let j = 0; j <= 1; j++) {
@@ -310,10 +317,7 @@ class GameState {
           if (piece > 63 || piece < 0) continue;
           if (Math.floor(piece/8) != Math.floor(king/8)+k*i) continue;
 
-          if (this.getPiece(piece) == 0) {
-            continue;
-          }
-          if (this.getPiece(piece) == pieces.King && !this.kings.includes(piece)) {
+          if (this.getPiece(piece) == pieces.Null) {
             continue;
           }
           if (this.isSameColor(this.getPieceColor(king), piece)) {
@@ -332,6 +336,35 @@ class GameState {
     }
   }
 
+  checkRook(king) {
+    // %: horizontal, /: vertical
+    for (const op of ["%", "/"]) {
+      
+      let max = eval(`Math.floor(${king}${op}8)<4? 7-Math.floor(${king}${op}8): Math.floor(${king}${op}8)`);
+      let blocked = [];
+      for (let i = 1; i <= max; i++) {
+        for (const k of [-1, 1]) {
+          if (blocked.includes(k)) continue;
+          let piece = king + i*k * (op=="%"? 1: 8);
+          
+          if (piece > 63 || piece < 0) continue;
+          let checkOp = op=="%"? "/": "%";
+          if (eval(`Math.floor(${piece}${checkOp}8)`) != eval(`Math.floor(${king}${checkOp}8)`)) continue;
+          this.drawchecks.push({x: piece%8, y: Math.floor(piece/8)})
+          if (this.getPiece(piece) == pieces.Null) continue;
+          if (this.isSameColor(this.getPieceColor(king), piece)) {
+            blocked.push(k)
+            continue
+          }
+          if (this.getPiece(piece) == pieces.Rook) {
+            return true
+          }
+
+        }
+      }
+    }
+  }
+
   drawSquares() {
     this.drawchecks.forEach(p => {
       ctx.save()
@@ -345,8 +378,7 @@ class GameState {
     })
     
   }
-  
-  
+
 }
 
 function xor(a, b) {
@@ -363,3 +395,5 @@ function containsArr(arr1, arr2) {
 }
 
 // *** to use: this.drawchecks.push({x: piece%8, y: Math.floor(piece/8)})
+
+// TODO: put the board into one canvas and not the whole screen
