@@ -1,3 +1,249 @@
+(function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const game_1 = require("./src/game");
+// import { Board } from "./src/board";
+// import { Mouse } from "./src/mouse";
+// import { GameState } from "./src/gamestate";
+const canvas = document.getElementById("game");
+const game = new game_1.Game(innerHeight, innerHeight, canvas);
+game.animate(canvas);
+
+},{"./src/game":3}],2:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.Board = void 0;
+class Board {
+    constructor(W, H, unit) {
+        this.reversed = false;
+        this.w = 8 * unit;
+        this.x = (W - this.w) / 2;
+        this.y = (H - this.w) / 2;
+        this.colors = [
+            "#888",
+            "#eee",
+        ];
+    }
+    ;
+    draw(canvas, unit, mouse, gameState, piecesAssets) {
+        const ctx = canvas.getContext("2d");
+        ctx.save();
+        ctx.translate(this.x, this.y);
+        ctx.fillStyle = "#000";
+        const border = 10;
+        ctx.fillRect(-border / 2, -border / 2, this.w + border, this.w + border);
+        ctx.fillStyle = this.colors[0];
+        ctx.fillRect(0, 0, this.w, this.w);
+        this.drawSmallSquares(ctx, unit);
+        this.mouse(mouse, gameState, canvas, unit);
+        this.drawPieces(gameState, ctx, unit, piecesAssets, mouse);
+        ctx.restore();
+    }
+    drawSmallSquares(ctx, unit) {
+        ctx.fillStyle = this.colors[1];
+        for (let i = 0; i < 4; i++) {
+            for (let j = 0; j < 8; j++) {
+                ctx.fillRect(2 * i * unit + (j % 2 ? unit : 0), j * unit, unit, unit);
+            }
+        }
+    }
+    drawPieces(gameState, ctx, unit, piecesAssets, mouse) {
+        let grabbed;
+        gameState.posArray.forEach((s, i) => {
+            ctx.fillStyle = "#000";
+            ctx.fillText(`${i}`, (i % 8) * unit + 0.1 * unit, Math.floor(i / 8) * unit + 0.2 * unit, 100);
+            if (s == 0)
+                return;
+            var a, coor;
+            if (Number(s) < 0) {
+                grabbed = -s;
+            }
+            else {
+                coor = { x: (i % 8) * unit, y: Math.floor(i / 8) * unit };
+                a = s;
+                
+                ctx.drawImage(piecesAssets[`${a}`], coor.x, coor.y, unit, unit);
+            }
+        });
+        if (grabbed) {
+            var coor = { x: mouse.pos.x - this.x - unit / 2, y: mouse.pos.y - this.y - unit / 2 };
+            ctx.drawImage(piecesAssets[`${grabbed}`], coor.x, coor.y, unit, unit);
+        }
+    }
+    resize(screen) {
+        this.w = 8 * screen.unit;
+        this.x = (screen.W - this.w) / 2;
+        this.y = (screen.H - this.w) / 2;
+    }
+    mouse(mouse, gameState, canvas, unit) {
+        const ctx = canvas.getContext("2d");
+        if (!mouse.inBoard) {
+            canvas.style.cursor = "default";
+            return;
+        }
+        let pos = Object.values(mouse.posInBoard).map((v) => {
+            return v * unit;
+        });
+        if (gameState.posArray[mouse.posIndex] !== 0) {
+            canvas.style.cursor = "grab";
+            gameState.pieceOn = mouse.posIndex;
+        }
+        else {
+            canvas.style.cursor = "default";
+            gameState.pieceOn = null;
+        }
+        ctx.save();
+        ctx.fillStyle = "#f008";
+        ctx.fillRect(pos[0], pos[1], unit, unit);
+        ctx.restore();
+    }
+}
+exports.Board = Board;
+/*
+class Board {
+  constructor() {
+    this.w = 8*unit;
+    this.x = (W-this.w)/2;
+    this.y = (H-this.w)/2;
+    this.colors = [
+      "#888",
+      "#eee",
+    ];
+    this.position =
+      this.initialPos = "";
+  }
+
+  draw() {
+    ctx.save();
+    ctx.translate(this.x, this.y);
+    ctx.fillStyle = "#000";
+    const border = 10;
+    ctx.fillRect(-border/2, -border/2, this.w+border, this.w+border);
+    ctx.fillStyle = this.colors[0];
+    ctx.fillRect(0, 0, this.w, this.w);
+
+    this.drawSmallSquares();
+
+    this.mouse();
+    this.drawPieces();
+    ctx.restore();
+  }
+
+  drawSmallSquares() {
+    ctx.fillStyle = this.colors[1];
+    for (let i = 0; i < 4; i++) {
+      for (let j = 0; j < 8; j++) {
+        ctx.fillRect(2*i*unit + (j % 2 ? unit : 0), j*unit, unit, unit);
+      }
+    }
+  }
+
+  drawPieces() {
+    let grabbed;
+    gameState.posArray.forEach((s, i) => {
+      ctx.fillStyle = "#000";
+      ctx.fillText(`${i}`, (i % 8)*unit + 0.1*unit, Math.floor(i / 8)*unit + 0.2*unit, 100, 100)
+      if (s == 0) return;
+      var a, coor
+
+      if (Number(s) < 0) {
+        grabbed = -s;
+      } else {
+        coor = { x: (i % 8)*unit, y: Math.floor(i / 8)*unit }
+        a = s;
+        ctx.drawImage(piecesAssets[`${a}`], coor.x, coor.y, unit, unit)
+      }
+
+    });
+    if (grabbed) {
+      var coor = { x: mouse.pos.x-this.x-unit/2, y: mouse.pos.y-this.y-unit/2}
+      ctx.drawImage(piecesAssets[`${grabbed}`], coor.x, coor.y, unit, unit)
+    }
+  }
+
+  resize() {
+    this.w = 8*unit;
+    this.x = (W-this.w)/2;
+    this.y = (H-this.w)/2;
+  }
+
+  mouse() {
+    if (!mouse.inBoard) {
+      canvas.style.cursor = "default";
+      return;
+    }
+
+    let pos = Object.values(mouse.posInBoard).map(v => {
+      return v*unit;
+    });
+
+    if (gameState.posArray[mouse.posIndex] !== 0) {
+      canvas.style.cursor = "grab";
+      gameState.pieceOn = mouse.posIndex;
+    } else {
+      canvas.style.cursor = "default";
+      gameState.pieceOn = null;
+    }
+
+    ctx.save();
+    ctx.fillStyle = "#f008";
+    ctx.fillRect(pos[0], pos[1], unit, unit);
+    ctx.restore();
+  }
+
+}
+ */ 
+
+},{}],3:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.Game = void 0;
+const board_1 = require("./board");
+const gamestate_1 = require("./gamestate");
+const mouse_1 = require("./mouse");
+const pieces_1 = require("./pieces");
+class Game {
+    constructor(width, height, canvas) {
+        this.piecesAssets = {};
+        canvas.width = this.W = width;
+        canvas.height = this.H = height;
+        this.unit = Math.min(this.H * 0.7 / 8, this.W * 0.7 / 8);
+        this.board = new board_1.Board(this.W, this.H, this.unit);
+        this.gameState = new gamestate_1.GameState();
+        this.mouse = new mouse_1.Mouse();
+        this.pieces = new pieces_1.Pieces();
+    }
+    resetRes(board) {
+        this.H = innerHeight;
+        this.W = innerWidth;
+        this.unit = Math.min(this.H * 0.7 / 8, this.W * 0.7 / 8);
+    }
+    loadPieces() {
+        let ps = ["pawn", "knight", "bishop", "rook", "queen", "king"];
+        const newImage = (src) => {
+            var tmp = new Image();
+            tmp.src = src;
+            return tmp;
+        };
+        ps.forEach((p, i) => {
+            this.piecesAssets[`${16 | (i + 1)}`] = newImage(`./assets/light/${p}.png`);
+            this.piecesAssets[`${8 | (i + 1)}`] = newImage(`./assets/dark/${p}.png`);
+        });
+    }
+   draw(canvas) {
+        this.board.draw(canvas, this.unit, this.mouse, this.gameState, this.piecesAssets);
+    }
+    animate(canvas) {
+        this.draw(canvas);
+        requestAnimationFrame(this.animate(canvas));
+    }
+}
+exports.Game = Game;
+
+},{"./board":2,"./gamestate":4,"./mouse":5,"./pieces":6}],4:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.GameState = void 0;
 class GameState {
     constructor() {
         // playing: number;
@@ -386,3 +632,55 @@ function containsArr(arr1, arr2) {
     }
     return false;
 }
+
+},{}],5:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.Mouse = void 0;
+class Mouse {
+    constructor() {
+        this.pos = { x: 0, y: 0 };
+        // note: this is chess coords but (0,0) is top left
+        this.posInBoard = { x: 0, y: 0 };
+        this.inBoard = false;
+        this.posIndex = null;
+    }
+    isInBoard(board) {
+        if (this.pos.x < board.x || this.pos.x > board.x + board.w)
+            return false;
+        if (this.pos.y < board.y || this.pos.y > board.y + board.w)
+            return false;
+        return true;
+    }
+    getPosInBoard(board, unit) {
+        return {
+            x: Math.floor((this.pos.x - board.x) / unit),
+            y: Math.floor((this.pos.y - board.y) / unit),
+        };
+    }
+    getPosIndex(board) {
+        return Math.abs((board.reversed ? 63 : 0) - (this.posInBoard.y * 8 + this.posInBoard.x));
+    }
+}
+exports.Mouse = Mouse;
+
+},{}],6:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.Pieces = void 0;
+class Pieces {
+    constructor() {
+        this.Null = 0;
+        this.Pawn = 1;
+        this.Knight = 2;
+        this.Bishop = 3;
+        this.Rook = 4;
+        this.Queen = 5;
+        this.King = 6;
+        this.Light = 16;
+        this.Dark = 8;
+    }
+}
+exports.Pieces = Pieces;
+
+},{}]},{},[1]);

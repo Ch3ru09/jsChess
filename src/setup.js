@@ -13,12 +13,16 @@ function loadPieces() {
   let ps = ["pawn", "knight", "bishop", "rook", "queen", "king"];
   
   ps.forEach((p, i) => {
-    piecesAssets[`${16 |(i+1)}`] = new Image();
-    piecesAssets[`${16 |(i+1)}`].src = `./assets/light/${p}.png`;
-    piecesAssets[`${8 |(i+1)}`] = new Image();
-    piecesAssets[`${8 |(i+1)}`].src = `./assets/dark/${p}.png`;
+    piecesAssets[`${16 |(i+1)}`] = newImage(`./assets/light/${p}.png`);
+    piecesAssets[`${8 |(i+1)}`] = newImage(`./assets/dark/${p}.png`);
   });
 } loadPieces();
+
+function newImage(src) {
+  var tmp = new Image();
+  tmp.src = src;
+  return tmp
+}
 
 let spriteSheet = new Image();
 spriteSheet.src = "./assets/spritesheets/default.png";
