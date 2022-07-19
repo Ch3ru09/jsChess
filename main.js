@@ -18,11 +18,10 @@ document.addEventListener("mousemove", handleMouseMove, false);
 function handleMouseMove(e) {
   mouse.pos.x = e.clientX;
   mouse.pos.y = e.clientY;
-  mouse.inBoard = mouse.isInBoard();
+  mouse.inBoard = mouse.isInBoard(board);
   if (mouse.inBoard) {  
-    mouse.posInBoard = mouse.getPosInBoard();
+    mouse.posInBoard = mouse.getPosInBoard(board, unit);
     mouse.posIndex = mouse.getPosIndex(board);
-    console.log(mouse.posIndex)
   } else {
     mouse.posInBoard = {x: null, y: null};
     gameState.pieceOn = undefined;
@@ -36,7 +35,6 @@ function handleMouseDown() {
   if (((gameState.posArray[gameState.pieceOn]) & gameState.playing) == gameState.playing) {
     gameState.posArray[gameState.pieceOn] *= -1;
     gameState.pieceGrabbed = gameState.pieceOn;
-    console.log(gameState.pieceGrabbed);
   }
 }
 
@@ -73,7 +71,7 @@ function handleMouseUp() {
 }
 
 
-gameState.decode("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+gameState.decode("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", pieces, board);
 
 function animation() {
   draw();
