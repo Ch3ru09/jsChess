@@ -7,8 +7,9 @@ class Board {
       "#888",
       "#eee",
     ];
-    this.position =
-      this.initialPos = "";
+    this.reversed = false;
+    // this.position =
+    //   this.initialPos = "";
   }
 
   draw() {
@@ -31,18 +32,21 @@ class Board {
     ctx.fillStyle = this.colors[1];
     for (let i = 0; i < 4; i++) {
       for (let j = 0; j < 8; j++) {
-        ctx.fillRect(2*i*unit + (j % 2 ? unit : 0), j*unit, unit, unit);
+        ctx.fillRect(2*i*unit + (j % 2? unit : 0), j*unit, unit, unit);
       }
     }
   }
 
   drawPieces() {
     let grabbed;
-    gameState.posArray.forEach((s, i) => {
+    const shownArr = [...gameState.posArray];
+    if (this.reversed) shownArr.reverse();
+    shownArr.forEach((s, i, arr) => {
       ctx.fillStyle = "#000";
-      ctx.fillText(`${i}`, (i % 8)*unit + 0.1*unit, Math.floor(i / 8)*unit + 0.2*unit, 100, 100)
+      let curr = Math.abs((this.reversed? arr.length-1: 0) - i)
+      ctx.fillText(`${curr}`, (i % 8)*unit + 0.1*unit, Math.floor(i / 8)*unit + 0.2*unit, 100, 100)
       if (s == 0) return;
-      var a, coor
+      var a, coor;
 
       if (Number(s) < 0) {
         grabbed = -s;
@@ -66,10 +70,8 @@ class Board {
   }
 
   mouse() {
-    if (!mouse.inBoard) {
-      canvas.style.cursor = "default";
-      return;
-    }
+    if (!mouse.inBoard) return canvas.style.cursor = "default";
+
 
     let pos = Object.values(mouse.posInBoard).map(v => {
       return v*unit;

@@ -13,6 +13,8 @@ class GameState {
     // 0: dark, 1: light
     this.kings = new Array(2).fill(0);
     this.drawchecks = [];
+
+    this.log = [];
   }
 
   decode(fencode, pieces, board) {
@@ -338,7 +340,6 @@ class GameState {
           let checkOp = op == "%" ? "/" : "%";
           if (eval(`Math.floor(${piece}${checkOp}8)`) != eval(`Math.floor(${king}${checkOp}8)`))
           continue;
-          this.drawchecks.push({ x: piece % 8, y: Math.floor(piece / 8) });
           if (this.getPiece(piece) == pieces.Null)
           continue;
           if (this.isSameColor(this.getPieceColor(king), piece)) {
@@ -355,11 +356,17 @@ class GameState {
 
   drawSquares(ctx, board, unit) {
     this.drawchecks.forEach(p => {
+      let {x, y} = p;
+      
+      if (board.reversed) {
+        x = 7 - p.x;
+        y = 7 - p.y;
+      }
       ctx.save();
       ctx.translate(board.x, board.y);
       ctx.fillStyle = "#448";
       ctx.beginPath();
-      ctx.arc(p.x * unit + unit / 2 + unit / 64, p.y * unit + unit / 2, unit / 8, 0, Math.PI * 2, false);
+      ctx.arc(x * unit + unit / 2 + unit / 64, y * unit + unit / 2, unit / 8, 0, Math.PI * 2, false);
       ctx.fill();
       ctx.closePath();
       ctx.restore();

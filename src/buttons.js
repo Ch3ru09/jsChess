@@ -27,7 +27,6 @@ function createButtons() {
         case "right":
           break
         case "swap":
-          board.shownArr.reverse()
           board.reversed = !board.reversed;
           break
       }

@@ -43,27 +43,36 @@ function handleMouseUp() {
   if (gameState.pieceGrabbed !== null && !mouse.inBoard) return gameState.posArray[gameState.pieceGrabbed] *= -1;
   if (gameState.pieceOn === undefined) return;
   if (gameState.pieceGrabbed === null) return;
-  const isLegal = gameState.checkLegal()
+  const isLegal = gameState.checkLegal(mouse, pieces)
   if (mouse.posIndex != gameState.pieceGrabbed && isLegal) {
+
     if (isLegal != "casled") {
       gameState.posArray[mouse.posIndex] = -gameState.posArray[gameState.pieceGrabbed];
     }
-    // if (isLegal == pieces.King) {
-    //   gameState.checkChecks(mouse.posIndex);
-    // }
     
-    gameState.posArray[gameState.pieceGrabbed] = 0;
-    gameState.playing ^= 24;
+    
+    
     if (gameState.epCheck) {
       gameState.epCheck = false;
     } else {
       gameState.enPassant = null;
     }
 
+    
+
     gameState.drawchecks.splice(0, gameState.drawchecks.length);
     gameState.kings.forEach(p => {
-      gameState.checkChecks(p);
+      const res = gameState.checkChecks(p, pieces);
+      if (!res[0]) return
+
+      console.log(res[1], gameState.playing)
+      if (res[1] == gameState.playing) {
+        gameState.revertMove(-1);
+      }
     })
+    gameState.posArray[gameState.pieceGrabbed] = 0;
+    gameState.playing ^= 24;
+
   } else {
     gameState.posArray[gameState.pieceGrabbed] *= -1;
     gameState.pieceGrabbed = null;
@@ -81,7 +90,7 @@ function animation() {
 function draw() {
   ctx.clearRect(0, 0, W, H);
   board.draw();
-  gameState.drawSquares()
+  gameState.drawSquares(ctx, board, unit)
 }
 
 animation();
