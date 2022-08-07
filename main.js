@@ -2,7 +2,7 @@ const pieces = new Pieces();
 const board = new Board();
 const gameState = new GameState();
 const mouse = new Mouse();
-
+const log = new GameLog();
 
 window.addEventListener("resize", handleWindowResize, false);
 function handleWindowResize() {
@@ -58,14 +58,13 @@ function handleMouseUp() {
       gameState.enPassant = null;
     }
 
-    
+    gameState.gameLog.push()
 
     gameState.drawchecks.splice(0, gameState.drawchecks.length);
     gameState.kings.forEach(p => {
       const res = gameState.checkChecks(p, pieces);
       if (!res[0]) return
 
-      console.log(res[1], gameState.playing)
       if (res[1] == gameState.playing) {
         gameState.revertMove(-1);
       }

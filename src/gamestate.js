@@ -13,8 +13,6 @@ class GameState {
     // 0: dark, 1: light
     this.kings = new Array(2).fill(0);
     this.drawchecks = [];
-
-    this.log = [];
   }
 
   decode(fencode, pieces, board) {
