@@ -30,6 +30,7 @@ class GameLog {
     gs.enPassant = null;
     if (remove !== 0) {
       this.log.splice(this.log.length + remove, 1);
+      this.curr = 0
     }
     this.reversed = true;
     this.forwarded = false;

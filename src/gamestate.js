@@ -336,8 +336,7 @@ class GameState {
             continue;
           }
           // else :
-          if (this.getPiece(piece) == pieces.Bishop)
-          return true;
+          if (this.getPiece(piece) == pieces.Bishop) return true;
           // guard clause, else:
           blocked.push([Math.sign(curr), k]);
           continue;

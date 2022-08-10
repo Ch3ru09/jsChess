@@ -48,7 +48,7 @@ function handleMouseUp() {
   if (res) {
     [isLegal, info] = res
   }
-  console.log(isLegal, info);
+
   if (mouse.posIndex != gameState.pieceGrabbed && isLegal) {
 
     
@@ -68,22 +68,24 @@ function handleMouseUp() {
     }
 
     gameState.drawchecks.splice(0, gameState.drawchecks.length);
+    
+    gameState.posArray[gameState.pieceGrabbed] = 0;
+    
+    
     gameState.kings.forEach(p => {
       const res = gameState.checkChecks(p, pieces);
       if (!res[0]) return;
-
+      console.log(res);
+      
       if (res[1] == gameState.playing) {
         gameLog.revertMove(-1, gameState);
+        gameState.playing ^= 24;
       }
     })
 
-
-    
-    
-    gameState.posArray[gameState.pieceGrabbed] = 0;
     gameState.playing ^= 24;
-    console.clear()
-    console.log(JSON.stringify(gameLog.log))
+    console.clear();
+    console.log(JSON.stringify(gameLog.log));
   } else {
     gameState.posArray[gameState.pieceGrabbed] *= -1;
     gameState.pieceGrabbed = null;
