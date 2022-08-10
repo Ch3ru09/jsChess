@@ -5,6 +5,8 @@ class GameLog {
     // *** log[n]:Array<number> = [c c c, m m m, i i, f f]
 
     this.curr = 0;
+    this.reverted = false;
+    this.forwarded = false;
   }
 
   addMove(p, i, f, gs) {
@@ -13,9 +15,11 @@ class GameLog {
     this.log.push([c, p, i, f]);
   }
 
+  // TODO: Optimize 18-54
+
   revertMove(remove, gs) {
     if (this.log.length + this.curr !== 0) {
-      --this.curr;
+      !this.forwarded ? --this.curr: 0;
     }
     let c = this.log[this.log.length + this.curr];
     gs.posArray[c[2]] = c[1];
@@ -27,6 +31,28 @@ class GameLog {
     if (remove !== 0) {
       this.log.splice(this.log.length + remove, 1);
     }
+    this.reversed = true;
+    this.forwarded = false;
   }
+
+  nextMove(gs) {
+    if (this.log.length + this.curr < this.log.length-1) {
+      !this.reversed ? ++this.curr: 0;
+    }
+
+    let c = this.log[this.log.length + this.curr];
+    
+    gs.posArray[c[3]] = c[1];
+    gs.posArray[c[2]] = 0;
+
+    gs.pieceOn = null;
+    gs.pieceGrabbed = null;
+    gs.enPassant = null;
+
+    this.reversed = false;
+    this.forwarded = true;
+  }
+
+  // TODO: optimize above
 }
 

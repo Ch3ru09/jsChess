@@ -24,12 +24,13 @@ function createButtons() {
       switch (e.target.id) {
         case "back":
           gameLog.revertMove(0, gameState)
-          break
+          break;
         case "forward":
-          break
+          gameLog.nextMove(gameState)
+          break;
         case "swap":
           board.reversed = !board.reversed;
-          break
+          break;
       }
     }
     body.append(button)
