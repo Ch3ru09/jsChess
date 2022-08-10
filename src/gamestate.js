@@ -57,100 +57,123 @@ class GameState {
   }
 
   checkLegal(mouse, pieces) {
-    if (!mouse.inBoard)
-    return false;
-    if (this.pieceGrabbed == null)
-    return false;
-    if (this.isSameColor(this.playing, mouse.posIndex) && this.getPiece(this.pieceGrabbed) != pieces.King)
-    return false;
+    let res = []; // [bool, number]
+
+    if (!mouse.inBoard) return false;
+    if (this.pieceGrabbed == null) return false;
+    
+    if (this.isSameColor(this.playing, mouse.posIndex) 
+      && this.getPiece(this.pieceGrabbed) != pieces.King
+    ) return false;
+
+    let info = {p: Math.abs(this.posArray[this.pieceGrabbed]), i: this.pieceGrabbed, f: mouse.posIndex};
     switch (this.getPiece(this.pieceGrabbed)) {
       case pieces.Pawn:
-      let direction = this.isPieceLight(this.pieceGrabbed) ? -1 : 1;
-      // get 1 and 2 for 1 forwards or 2 forwards:
-      for (let i = 1; i <= 2; i++) {
-        if (mouse.posIndex != this.pieceGrabbed + (8 * direction * (i)))
-        continue;
-        if (this.pieceOn != null)
-        return false;
-        if (this.posArray[this.pieceGrabbed + (8 * direction)] != 0)
-        return false;
-        if (i != 2)
-        return true;
-        if (this.canDoublePush(this.pieceGrabbed)) {
-          this.enPassant = this.pieceGrabbed + (8 * direction);
-          this.epCheck = true;
-          return true;
+        let direction = this.isPieceLight(this.pieceGrabbed) ? -1 : 1;
+        // get 1 and 2 for 1 forwards or 2 forwards:
+        for (let i = 1; i <= 2; i++) {
+          if (mouse.posIndex != this.pieceGrabbed + (8 * direction * (i))) continue;
+
+          if (this.pieceOn != null) return false;
+
+          if (this.posArray[this.pieceGrabbed + (8 * direction)] != 0) return false;
+
+          if (i != 2) {
+            res.splice(0, 0, true, info)
+            return res;
+          }
+
+          if (this.canDoublePush(this.pieceGrabbed)) {
+            this.enPassant = this.pieceGrabbed + (8 * direction);
+            this.epCheck = true;
+            res.splice(0, 0, true, info);
+            return res;
+          }
         }
-      }
-      // get -1 and 1 for side captures
-      for (let i of [-1, 1]) {
-        if (mouse.posIndex != this.pieceGrabbed + (8 * direction + (i)))
-        continue;
-        if (mouse.posIndex == this.enPassant) {
-          this.posArray[this.enPassant + (-direction * 8)] = 0;
-          return true;
+        // get -1 and 1 for side captures
+        for (let i of [-1, 1]) {
+          if (mouse.posIndex != this.pieceGrabbed + (8 * direction + (i))) continue;
+          if (mouse.posIndex == this.enPassant) {
+            this.posArray[this.enPassant + (-direction * 8)] = 0;
+            res.splice(0, 0, true, info);
+            return res;
+          }
+          if (this.pieceOn == null) break;
+
+          res.splice(0, 0, true, info);
+          return res;
         }
-        if (this.pieceOn == null)
         break;
-        return true;
-      }
-      break;
+
       case pieces.Knight:
-      const side = Math.floor(mouse.posIndex / 8) < Math.floor(this.pieceGrabbed / 8) ? 0 : 7;
-      const dir = side == 0 ? -1 : 1;
-      for (let i = 1; i <= 2; i++) {
-        for (let j = 0; j < 2; j++) {
-          let xdelta = i == 1 ? 2 : 1;
-          let curr = this.pieceGrabbed + i * 8 * dir + j * 2 * xdelta - xdelta;
-          if (mouse.posIndex == curr)
-          return true;
-        }
-      }
-      break;
-      case pieces.Bishop:
-      return this.bishopMove(mouse);
-      case pieces.Rook:
-      return this.handleRookMove(mouse);
-      case pieces.Queen:
-      return this.bishopMove(mouse) || this.handleRookMove(mouse);
-      case pieces.King:
-      if (this.isSameColor(this.playing, mouse.posIndex)) {
-        if (this.getPiece(mouse.posIndex) == pieces.Rook) {
-          if (this.handleCastle(this.pieceOn, pieces)) {
-            return "casled";
-          }
-        }
-        return false;
-      }
-      for (let i = 0; i < 2; i++) {
-        if (mouse.posIndex !== this.pieceGrabbed + i * 4 - 2)
-        continue;
-        if (this.handleCastle(i * 7 + ((this.playing - 8) * 7), pieces)) {
-          return "casled";
-        }
-        continue;
-      }
-      for (let i = -1; i < 2; i++) {
-        if (Math.floor((this.pieceGrabbed + i * 8) / 8) != Math.floor(mouse.posIndex / 8))
-        continue;
-        for (let j = -1; j < 2; j++) {
-          if (i == 0 && j == 0)
-          continue;
-          const curr = this.pieceGrabbed + i * 8 + j;
-          if (curr == mouse.posIndex) {
-            if (this.canCastle == 15) {
-              this.canCastle ^= (((this.playing / (2 ** 3)) ** 2) * 3);
+        const side = Math.floor(mouse.posIndex / 8) < Math.floor(this.pieceGrabbed / 8) ? 0 : 7;
+        const dir = side == 0 ? -1 : 1;
+        for (let i = 1; i <= 2; i++) {
+          for (let j = 0; j < 2; j++) {
+            let xdelta = i == 1 ? 2 : 1;
+            let curr = this.pieceGrabbed + i * 8 * dir + j * 2 * xdelta - xdelta;
+            if (mouse.posIndex == curr) {
+              res.splice(0, 0, true, info);
+              return res;
             }
-            this.kings.splice(this.playing / 8 - 1, 1, mouse.posIndex);
-            return pieces.King;
+            
           }
         }
-      }
-      break;
+        break;
+      case pieces.Bishop:
+        res.splice(0, 0, this.bishopMove(mouse), info);
+        return res;
+
+      case pieces.Rook:
+        res.splice(0, 0, this.handleRookMove(mouse), info);
+        return res;
+
+      case pieces.Queen:
+        res.splice(0, 0, this.bishopMove(mouse) || this.handleRookMove(mouse), info);
+        return res;
+
+      case pieces.King:
+        if (this.isSameColor(this.playing, mouse.posIndex)) {
+          if (this.getPiece(mouse.posIndex) == pieces.Rook) {
+            if (this.handleCastle(this.pieceOn, pieces)) {
+              res.splice(0, 0, true, "casled");
+              return res;
+            }
+          }
+          return false;
+        }
+        for (let i = 0; i < 2; i++) {
+          if (mouse.posIndex !== this.pieceGrabbed + i * 4 - 2)
+          continue;
+          if (this.handleCastle(i * 7 + ((this.playing - 8) * 7), pieces)) {
+            res.splice(0, 0, true, "casled");
+            return res;
+          }
+          continue;
+        }
+        for (let i = -1; i < 2; i++) {
+          if (Math.floor((this.pieceGrabbed + i * 8) / 8) != Math.floor(mouse.posIndex / 8))
+          continue;
+          for (let j = -1; j < 2; j++) {
+            if (i == 0 && j == 0)
+            continue;
+            const curr = this.pieceGrabbed + i * 8 + j;
+            if (curr == mouse.posIndex) {
+              if (this.canCastle == 15) {
+                this.canCastle ^= (((this.playing / (2 ** 3)) ** 2) * 3);
+              }
+              this.kings.splice(this.playing / 8 - 1, 1, mouse.posIndex);
+              
+              res.splice(0, 0, true, info);
+              return res;
+            }
+          }
+        }
+        break;
       default:
-      break;
+        break;
     }
-    return false;
+    return res;
   }
 
   canDoublePush(pawn) {

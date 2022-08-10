@@ -2,7 +2,7 @@ const pieces = new Pieces();
 const board = new Board();
 const gameState = new GameState();
 const mouse = new Mouse();
-const log = new GameLog();
+const gameLog = new GameLog();
 
 window.addEventListener("resize", handleWindowResize, false);
 function handleWindowResize() {
@@ -43,14 +43,23 @@ function handleMouseUp() {
   if (gameState.pieceGrabbed !== null && !mouse.inBoard) return gameState.posArray[gameState.pieceGrabbed] *= -1;
   if (gameState.pieceOn === undefined) return;
   if (gameState.pieceGrabbed === null) return;
-  const isLegal = gameState.checkLegal(mouse, pieces)
+  const res = gameState.checkLegal(mouse, pieces)
+  let isLegal, info
+  if (res) {
+    [isLegal, info] = res
+  }
+  console.log(isLegal, info);
   if (mouse.posIndex != gameState.pieceGrabbed && isLegal) {
 
-    if (isLegal != "casled") {
+    
+
+    if (info != "casled") {
+      let {p, i, f} = info;
+      gameLog.addMove(p, i, f, gameState);
       gameState.posArray[mouse.posIndex] = -gameState.posArray[gameState.pieceGrabbed];
+    } else {
+      gameLog.log.push("O-O")
     }
-    
-    
     
     if (gameState.epCheck) {
       gameState.epCheck = false;
@@ -58,20 +67,23 @@ function handleMouseUp() {
       gameState.enPassant = null;
     }
 
-    gameState.gameLog.push()
-
     gameState.drawchecks.splice(0, gameState.drawchecks.length);
     gameState.kings.forEach(p => {
       const res = gameState.checkChecks(p, pieces);
-      if (!res[0]) return
+      if (!res[0]) return;
 
       if (res[1] == gameState.playing) {
-        gameState.revertMove(-1);
+        gameLog.revertMove(-1, gameState);
       }
     })
+
+
+    
+    
     gameState.posArray[gameState.pieceGrabbed] = 0;
     gameState.playing ^= 24;
-
+    console.clear()
+    console.log(JSON.stringify(gameLog.log))
   } else {
     gameState.posArray[gameState.pieceGrabbed] *= -1;
     gameState.pieceGrabbed = null;

@@ -22,9 +22,10 @@ function createButtons() {
 
     button.onclick = (e) => {
       switch (e.target.id) {
-        case "left":
+        case "back":
+          gameLog.revertMove(0, gameState)
           break
-        case "right":
+        case "forward":
           break
         case "swap":
           board.reversed = !board.reversed;
