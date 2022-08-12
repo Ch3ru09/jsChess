@@ -1,0 +1,25 @@
+.box {
+  position: absolute;
+  width: 20%;
+  height: 50%;
+  bottom: 40%;
+  right: 0%;
+}
+
+button {
+  position: absolute;
+  top: 50%;
+  width: 4vh;
+  height: 3vh;
+  transform: translateY(50%);
+  background-size: 50%;
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-color: rgb(128, 128, 128);
+
+  padding: 1vh;
+  border-radius: 10px;
+  transition: background-color 100ms ease-in-out;
+  border: none;
+  outline: none;
+}

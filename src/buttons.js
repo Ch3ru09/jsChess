@@ -7,8 +7,8 @@ function createButtons() {
   ];
   icons.forEach((p, i) => {
     const button = document.createElement("button");
-    const body = document.getElementsByTagName("body")[0];
-    button.style.left = `calc(80% + ${i*4*5/4}vh)`;
+    const info = document.getElementById("info");
+    button.style.left = `calc(${i*4*5/4}vh)`;
     button.style.backgroundImage = `url(assets/icons/${p}.png)`;
     button.id = p.split("-")[0];
 
@@ -33,7 +33,7 @@ function createButtons() {
           break;
       }
     }
-    body.append(button)
+    info.append(button)
   })
 } createButtons();
 
