@@ -43,7 +43,7 @@ class GameLog {
   //   }
 
   //   let c = this.log[this.log.length + this.curr];
-    
+
   //   gs.posArray[c[2]] = 0;
   //   gs.posArray[c[3]] = c[1];
 
@@ -61,8 +61,8 @@ class GameLog {
     // }
 
     if (this.log.length + delta !== 0) {
-      !this.forwarded ? this.curr+delta: 0;
-      !this.reversed ? this.curr+delta: 0;
+      !this.forwarded ? this.curr + delta : 0;
+      !this.reversed ? this.curr + delta : 0;
     }
 
     let c = this.log[this.log.length + this.curr];
@@ -75,13 +75,12 @@ class GameLog {
 
     if (remove && remove !== 0) {
       this.log.splice(this.log.length + remove, 1);
-      this.curr = 0
+      this.curr = 0;
     }
-    
+
     this.reversed = !this.reversed;
     this.forwarded = !this.forwarded;
   }
 
   // TODO: optimize above
 }
-

@@ -7,10 +7,8 @@ class Mouse {
     this.posIndex = null;
   }
   isInBoard(board) {
-    if (this.pos.x < board.x || this.pos.x > board.x + board.w)
-    return false;
-    if (this.pos.y < board.y || this.pos.y > board.y + board.w)
-    return false;
+    if (this.pos.x < board.x || this.pos.x > board.x + board.w) return false;
+    if (this.pos.y < board.y || this.pos.y > board.y + board.w) return false;
     return true;
   }
   getPosInBoard(board, unit) {
@@ -20,6 +18,8 @@ class Mouse {
     };
   }
   getPosIndex(board) {
-    return Math.abs((board.reversed ? 63 : 0) - (this.posInBoard.y * 8 + this.posInBoard.x));
+    return Math.abs(
+      (board.reversed ? 63 : 0) - (this.posInBoard.y * 8 + this.posInBoard.x)
+    );
   }
 }
