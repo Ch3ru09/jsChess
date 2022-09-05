@@ -460,11 +460,11 @@ class GameState {
         // --- capture ---
         for (let i of [-1, 1]) {
           const curr = one + i;
-          if (!this.posArray[curr] || this.posArray[curr] == pieces.Null)
-            continue;
+          if (!this.posArray[curr] || this.posArray[curr] == pieces.Null) continue;
+          
+          legal.push(curr)
         }
         // ---------------
-
         break;
 
       case pieces.Knight:
@@ -485,11 +485,11 @@ class GameState {
       default:
         break;
     }
+    return legal
   }
 }
-// function xor(a: boolean, b: boolean) {
-//   return (a && !b) || (!a && b);
-// }
+
+
 function containsArr(arr1, arr2) {
   for (const a of arr2) {
     if (JSON.stringify(arr1) == JSON.stringify(a)) {

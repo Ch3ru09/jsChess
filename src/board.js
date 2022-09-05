@@ -7,6 +7,7 @@ class Board {
     this.reversed = false;
     // this.position =
     //   this.initialPos = "";
+    this.legal = [];
   }
 
   draw() {
@@ -22,6 +23,7 @@ class Board {
 
     this.mouse();
     this.drawPieces();
+    this.drawLegal()
     ctx.restore();
   }
 
@@ -66,6 +68,17 @@ class Board {
       };
       ctx.drawImage(piecesAssets[`${grabbed}`], coor.x, coor.y, unit, unit);
     }
+  }
+
+  drawLegal() {
+    if (this.legal.length <= 0) return;
+
+    this.legal.forEach(s => {
+      const r = 15
+      ctx.arc((s%8+1)*unit-unit/2, (Math.floor(s/8)+1)*unit-unit/2, r, 0, Math.PI*2, false);
+      ctx.closePath();
+      ctx.fill()
+    })
   }
 
   resize() {

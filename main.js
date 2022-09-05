@@ -32,8 +32,8 @@ document.addEventListener("mousedown", handleMouseDown, false);
 function handleMouseDown() {
   if (!mouse.inBoard || gameState.pieceOn == null) return;
   gameState.iPos = mouse.posIndex;
-  gameState.getLegal(mouse.posIndex, pieces);
-
+  
+  board.legal = gameState.getLegal(mouse.posIndex, pieces);
   // if (((gameState.posArray[gameState.pieceOn]) & gameState.playing) == gameState.playing) {
   //   gameState.posArray[gameState.pieceOn] *= -1;
   //   gameState.pieceGrabbed = gameState.pieceOn;
@@ -43,6 +43,8 @@ function handleMouseDown() {
 document.addEventListener("mouseup", handleMouseUp, false);
 function handleMouseUp() {
   gameState.fPos = mouse.posIndex;
+
+  
   // if (gameState.pieceGrabbed !== null && !mouse.inBoard) return gameState.posArray[gameState.pieceGrabbed] *= -1;
   // if (gameState.pieceOn === undefined) return;
   // if (gameState.pieceGrabbed === null) return;
