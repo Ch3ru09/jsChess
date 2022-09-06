@@ -460,40 +460,54 @@ class GameState {
         // --- capture ---
         for (let i of [-1, 1]) {
           const curr = one + i;
-          if (!this.posArray[curr] 
-            || this.posArray[curr] == pieces.Null
-            || this.getPieceColor(curr) == this.playing
-          ) continue;
-          
-          legal.push(curr)
+          if (
+            !this.posArray[curr] ||
+            this.posArray[curr] == pieces.Null ||
+            this.getPieceColor(curr) == this.playing
+          )
+            continue;
+
+          legal.push(curr);
         }
         // ---------------
         break;
 
       case pieces.Knight:
         for (let i = -2; i <= 2; i++) {
-          if (i === 0) continue
+          if (i === 0) continue;
 
-          let curr = piece - i*8
+          let curr = piece - i * 8;
 
           for (let j = 0; j < 2; j++) {
-            let c = j*2-1
-            let s = curr + Math.abs(Math.abs(i)-2)*c + c
-            
-            let check = piece + Math.abs(Math.abs(i)-2)*c + c
-            console.log(check);
-            if (this.getPieceColor(curr) == this.playing) continue
+            let c = j * 2 - 1;
+            let s = curr + Math.abs(Math.abs(i) - 2) * c + c;
+            let ycheck =
+              Math.abs(Math.floor(piece / 8) - Math.floor(s / 8)) > 2;
+            if (
+              Math.abs((piece % 8) - (s % 8)) > 2 ||
+              s > 63 ||
+              s < 0 ||
+              ycheck
+            )
+              continue;
+            if (this.getPieceColor(curr) == this.getPieceColor(piece)) continue;
 
-            legal.push(s)
+            legal.push(s);
           }
         }
         break;
 
-      case pieces.Bishop:
+      case pieces.Bishop: {
+        
         break;
+      }
 
-      case pieces.Rook:
+      case pieces.Rook: {
+        
+
+
         break;
+      }
 
       case pieces.Queen:
         break;
@@ -504,10 +518,55 @@ class GameState {
       default:
         break;
     }
+    return legal;
+  }
+
+  getBishop(piece, pieces) {
+    const max = Math.max(piece % 8, 7 - (piece % 8));
+    const legal = []
+    for (let i of [-1, 1]) {
+      const blocked = [];
+
+      for (let j = 1; j <= max; j++) {
+        if (blocked.length == 2) break;
+
+        let curr = piece - i * j * 8;
+        for (let k of [-1, 1]) {
+          if (blocked.includes(k)) continue;
+          const c = curr + k * j;
+          if (c > 63 || c < 0) continue;
+          if (c%8 != (piece%8+ k*j)) continue;
+          if (this.posArray[c] !== pieces.Null) {
+            blocked.push(k);
+
+            if (this.getPieceColor(c) != this.getPieceColor(piece)) {
+              legal.push(c);
+            }
+            continue;
+          }
+          legal.push(c);
+        }
+      }
+    }
     return legal
   }
-}
 
+  // getRook(piece) {
+  //   const xmax = Math.max(piece % 8, 7 - (piece % 8));
+  //   const ymax = Math.max(Math.floor(piece/8), 7 - Math.floor(piece/8));
+  // }
+
+  // getRookMoves(max, mod) {
+  //   const blocked = []
+  //   for (let i in [-1, 1]) {
+  //     if (blocked.length == 2) break
+  //     if (blocked.includes(i)) continue
+  //     for (let j = 1; j <= max; j++) {
+        
+  //     }
+  //   }
+  // }
+}
 
 function containsArr(arr1, arr2) {
   for (const a of arr2) {

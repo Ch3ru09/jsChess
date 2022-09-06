@@ -32,7 +32,7 @@ document.addEventListener("mousedown", handleMouseDown, false);
 function handleMouseDown() {
   if (!mouse.inBoard || gameState.pieceOn == null) return;
   gameState.iPos = mouse.posIndex;
-  
+
   board.legal = gameState.getLegal(mouse.posIndex, pieces);
   // if (((gameState.posArray[gameState.pieceOn]) & gameState.playing) == gameState.playing) {
   //   gameState.posArray[gameState.pieceOn] *= -1;
@@ -44,7 +44,6 @@ document.addEventListener("mouseup", handleMouseUp, false);
 function handleMouseUp() {
   gameState.fPos = mouse.posIndex;
 
-  
   // if (gameState.pieceGrabbed !== null && !mouse.inBoard) return gameState.posArray[gameState.pieceGrabbed] *= -1;
   // if (gameState.pieceOn === undefined) return;
   // if (gameState.pieceGrabbed === null) return;
@@ -95,7 +94,7 @@ function handleMouseUp() {
 }
 
 gameState.decode(
-  "rnbqkbnr/pppppppp/8/8/7N/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+  "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
   pieces,
   board
 );
