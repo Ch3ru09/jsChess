@@ -475,11 +475,16 @@ class GameState {
           if (i === 0) continue
 
           let curr = piece - i*8
-          
+
           for (let j = 0; j < 2; j++) {
             let c = j*2-1
-            curr += Math.abs(Math.abs(i)-2)*c + c
-            console.log(curr, c);
+            let s = curr + Math.abs(Math.abs(i)-2)*c + c
+            
+            let check = piece + Math.abs(Math.abs(i)-2)*c + c
+            console.log(check);
+            if (this.getPieceColor(curr) == this.playing) continue
+
+            legal.push(s)
           }
         }
         break;
