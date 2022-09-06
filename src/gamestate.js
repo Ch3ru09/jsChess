@@ -503,9 +503,7 @@ class GameState {
       }
 
       case pieces.Rook: {
-        
-
-
+        this.getRook(piece)
         break;
       }
 
@@ -551,21 +549,26 @@ class GameState {
     return legal
   }
 
-  // getRook(piece) {
-  //   const xmax = Math.max(piece % 8, 7 - (piece % 8));
-  //   const ymax = Math.max(Math.floor(piece/8), 7 - Math.floor(piece/8));
-  // }
+  getRook(piece) {
+    const xmax = Math.max(piece % 8, 7 - (piece % 8));
+    const ymax = Math.max(Math.floor(piece/8), 7 - Math.floor(piece/8));
 
-  // getRookMoves(max, mod) {
-  //   const blocked = []
-  //   for (let i in [-1, 1]) {
-  //     if (blocked.length == 2) break
-  //     if (blocked.includes(i)) continue
-  //     for (let j = 1; j <= max; j++) {
+    this.getRookMoves(xmax, 1, piece);
+    this.getRookMoves(ymax, 8, piece)
+  }
+
+  getRookMoves(max, mod, piece) {
+    const blocked = []
+    for (let i of [-1, 1]) {
+      if (blocked.length == 2) break
+      if (blocked.includes(i)) continue
+
+      for (let j = 1; j <= max; j++) {
+        const curr = piece + i*j*mod;
         
-  //     }
-  //   }
-  // }
+      }
+    }
+  }
 }
 
 function containsArr(arr1, arr2) {
