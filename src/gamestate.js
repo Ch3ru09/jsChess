@@ -16,6 +16,9 @@ class GameState {
 
     this.iPos = null;
     this.fPos = null;
+
+    this.checkedLegal = {}
+    this.clickmode = false
   }
 
   decode(fencode, pieces) {
@@ -398,7 +401,8 @@ class GameState {
       }
     }
   }
-
+  */
+  /*
   drawSquares(ctx, board, unit) {
     this.drawchecks.forEach((p) => {
       let { x, y } = p;
@@ -425,7 +429,7 @@ class GameState {
     });
   }
   */
- 
+
   // make getlegal and checkLegal into separate functions
 
   checkLegal2(_mouse = null, pieces, piece) {
@@ -433,6 +437,10 @@ class GameState {
   }
 
   getLegal(piece, pieces) {
+    if (this.checkedLegal.hasOwnProperty(`${piece}`)) {
+      return this.checkedLegal[`${piece}`];
+    }
+
     const legal = [];
     const color = this.getPieceColor(piece);
 
@@ -464,11 +472,29 @@ class GameState {
         break;
 
       case pieces.King:
+        for (let i = -1; i < 2; i++) {
+          for (let j = -1; j < 2; j++) {
+            if (i == 0 && j == 0) continue
+
+            const curr = piece + i*8 + j
+
+            if (curr > 63 || curr < 0) continue
+            if (this.getPieceColor(curr) == this.getPieceColor(piece)) continue
+            if (Math.abs(piece%8 - curr%8) > 2) continue
+
+            legal.push(curr)
+          }
+        }
         break;
 
       default:
         break;
     }
+
+    if (legal.length > 0) {
+      this.checkedLegal[`${piece}`] = legal
+    }
+
     return legal;
   }
 

@@ -43,7 +43,14 @@ function handleMouseDown() {
 document.addEventListener("mouseup", handleMouseUp, false);
 function handleMouseUp() {
   gameState.fPos = mouse.posIndex;
+  if (gameState.iPos == gameState.fPos) {
+    gameState.clickmode = true
+    return
+  }
 
+  gameState.checkMove
+
+  
   // if (gameState.pieceGrabbed !== null && !mouse.inBoard) return gameState.posArray[gameState.pieceGrabbed] *= -1;
   // if (gameState.pieceOn === undefined) return;
   // if (gameState.pieceGrabbed === null) return;
@@ -94,7 +101,7 @@ function handleMouseUp() {
 }
 
 gameState.decode(
-  "rnbqkbnr/pppppppp/8/8/3Q4/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+  "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
   pieces,
   board
 );
@@ -108,7 +115,7 @@ function animation() {
 function draw() {
   ctx.clearRect(0, 0, W, H);
   board.draw();
-  gameState.drawSquares(ctx, board, unit);
+  // gameState.drawSquares(ctx, board, unit);
 }
 
 animation();
