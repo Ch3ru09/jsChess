@@ -498,7 +498,7 @@ class GameState {
         break;
 
       case pieces.Bishop: {
-        
+        legal.push(...this.getBishop(piece, pieces))
         break;
       }
 
@@ -565,7 +565,9 @@ class GameState {
 
       for (let j = 1; j <= max; j++) {
         const curr = piece + i*j*mod;
-        
+        if (curr > 63 || curr < 0) continue
+
+        console.log(curr);
       }
     }
   }

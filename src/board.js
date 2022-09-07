@@ -79,7 +79,7 @@ class Board {
       ctx.beginPath();
       const r = 15;
       ctx.arc(
-        ((s % 8) + 1) * unit - unit / 2,
+        ((s % 8) + 1) * unit - unit / 2+ 2,
         (Math.floor(s / 8) + 1) * unit - unit / 2,
         r,
         0,
