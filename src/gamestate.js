@@ -188,7 +188,7 @@ class GameState {
     }
     return res;
   }
-  */
+  
 
   canDoublePush(pawn) {
     if (Math.floor(pawn / 8) + 1 == (this.isPieceLight(pawn) ? 7 : 2))
@@ -424,7 +424,8 @@ class GameState {
       ctx.restore();
     });
   }
-
+  */
+ 
   // make getlegal and checkLegal into separate functions
 
   checkLegal2(_mouse = null, pieces, piece) {
@@ -437,64 +438,12 @@ class GameState {
 
     switch (this.getPiece(piece)) {
       case pieces.Pawn:
-        const dir = Math.sign(color - 12); // to get -1 and +1
-        const epRow = ((color - 8) / 8) * 5 + 1;
-        const one = piece - 8 * dir;
-
-        // --- forward ---
-        if (this.posArray[one] == pieces.Null) {
-          legal.push(one);
-
-          const two = piece - 2 * 8 * dir;
-          if (
-            this.posArray[two] == pieces.Null &&
-            Math.floor(piece / 8) == epRow
-          ) {
-            legal.push(two);
-            this.enPassant = one;
-          }
-        }
-
-        // ---------------
-
-        // --- capture ---
-        for (let i of [-1, 1]) {
-          const curr = one + i;
-          if (
-            !this.posArray[curr] ||
-            this.posArray[curr] == pieces.Null ||
-            this.getPieceColor(curr) == this.playing
-          )
-            continue;
-
-          legal.push(curr);
-        }
-        // ---------------
+        const res = this.getPawn(color, piece, pieces)
+        Object.values(res).forEach(x => x.forEach(y => legal.push(y)))
         break;
 
       case pieces.Knight:
-        for (let i = -2; i <= 2; i++) {
-          if (i === 0) continue;
-
-          let curr = piece - i * 8;
-
-          for (let j = 0; j < 2; j++) {
-            let c = j * 2 - 1;
-            let s = curr + Math.abs(Math.abs(i) - 2) * c + c;
-            let ycheck =
-              Math.abs(Math.floor(piece / 8) - Math.floor(s / 8)) > 2;
-            if (
-              Math.abs((piece % 8) - (s % 8)) > 2 ||
-              s > 63 ||
-              s < 0 ||
-              ycheck
-            )
-              continue;
-            if (this.getPieceColor(curr) == this.getPieceColor(piece)) continue;
-
-            legal.push(s);
-          }
-        }
+        legal.push(...this.getKight(piece))
         break;
 
       case pieces.Bishop: {
@@ -503,11 +452,15 @@ class GameState {
       }
 
       case pieces.Rook: {
-        this.getRook(piece)
+        legal.push(...this.getRook(piece, pieces))
         break;
       }
 
       case pieces.Queen:
+        const b = this.getBishop(piece, pieces)
+        const r = this.getRook(piece, pieces)
+
+        legal.push(...b, ...r)
         break;
 
       case pieces.King:
@@ -517,6 +470,73 @@ class GameState {
         break;
     }
     return legal;
+  }
+
+  getPawn(color, piece, pieces) {
+    const dir = Math.sign(color - 12); // to get -1 and +1
+    const epRow = ((color - 8) / 8) * 5 + 1;
+    const one = piece - 8 * dir;
+
+    // --- forward ---
+    const f = []
+    if (this.posArray[one] == pieces.Null) {
+      f.push(one);
+
+      const two = piece - 2 * 8 * dir;
+      if (
+        this.posArray[two] == pieces.Null &&
+        Math.floor(piece / 8) == epRow
+      ) {
+        f.push(two);
+        this.enPassant = one;
+      }
+    }
+
+    // ---------------
+
+    // --- capture ---
+    const c = []
+    for (let i of [-1, 1]) {
+      const curr = one + i;
+      if (
+        !this.posArray[curr] ||
+        this.posArray[curr] == pieces.Null ||
+        this.getPieceColor(curr) == this.playing
+      )
+        continue;
+
+      c.push(curr);
+    }
+    // ---------------
+
+    return {forward: f, capture: c}
+  }
+
+  getKight(piece) {
+    const legal = []
+    for (let i = -2; i <= 2; i++) {
+      if (i === 0) continue;
+
+      let curr = piece - i * 8;
+
+      for (let j = 0; j < 2; j++) {
+        let c = j * 2 - 1;
+        let s = curr + Math.abs(Math.abs(i) - 2) * c + c;
+        let ycheck =
+          Math.abs(Math.floor(piece / 8) - Math.floor(s / 8)) > 2;
+        if (
+          Math.abs((piece % 8) - (s % 8)) > 2 ||
+          s > 63 ||
+          s < 0 ||
+          ycheck
+        )
+          continue;
+        if (this.getPieceColor(curr) == this.getPieceColor(piece)) continue;
+
+        legal.push(s);
+      }
+    }
+    return legal
   }
 
   getBishop(piece, pieces) {
@@ -546,30 +566,47 @@ class GameState {
         }
       }
     }
-    return legal
+    return legal;
   }
 
-  getRook(piece) {
+  getRook(piece, pieces) {
     const xmax = Math.max(piece % 8, 7 - (piece % 8));
     const ymax = Math.max(Math.floor(piece/8), 7 - Math.floor(piece/8));
 
-    this.getRookMoves(xmax, 1, piece);
-    this.getRookMoves(ymax, 8, piece)
+    const resx = this.getRookMoves(xmax, 1, piece, pieces, Math.floor(piece/8))
+    const resy = this.getRookMoves(ymax, 8, piece, pieces)
+
+    return resx.concat(...resy)
   }
 
-  getRookMoves(max, mod, piece) {
+  getRookMoves(max, mod, piece, pieces, check) {
     const blocked = []
+    const legal = []
     for (let i of [-1, 1]) {
       if (blocked.length == 2) break
       if (blocked.includes(i)) continue
 
       for (let j = 1; j <= max; j++) {
+        if (blocked.includes(i)) continue
+
         const curr = piece + i*j*mod;
         if (curr > 63 || curr < 0) continue
+        if (mod == 1) {
+          if (Math.floor(curr/8) !== check) continue
+        }
 
-        console.log(curr);
+        if (this.posArray[curr] !== pieces.Null) {
+          blocked.push(i);
+
+          if (this.getPieceColor(curr) != this.getPieceColor(piece)) {
+            legal.push(curr);
+          }
+          continue;
+        }
+        legal.push(curr);
       }
     }
+    return legal;
   }
 }
 

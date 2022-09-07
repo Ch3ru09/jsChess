@@ -94,7 +94,7 @@ function handleMouseUp() {
 }
 
 gameState.decode(
-  "rnbqkbnr/pppppppp/8/8/3R4/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+  "rnbqkbnr/pppppppp/8/8/3Q4/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
   pieces,
   board
 );
