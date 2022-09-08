@@ -8,6 +8,7 @@ class Board {
     // this.position =
     //   this.initialPos = "";
     this.legal = [];
+    this.checks = [];
   }
 
   draw() {
@@ -24,6 +25,7 @@ class Board {
     this.mouse();
     this.drawPieces();
     this.drawLegal();
+    this.drawChecks();
     ctx.restore();
   }
 
@@ -73,13 +75,36 @@ class Board {
   drawLegal() {
     if (this.legal.length <= 0) return;
     ctx.save();
-    ctx.fillStyle = "red";
+    ctx.fillStyle = "#5050FF";
 
     this.legal.forEach((s) => {
       ctx.beginPath();
-      const r = 15;
+      const r = unit/5;
       ctx.arc(
-        ((s % 8) + 1) * unit - unit / 2+ 2,
+        ((s % 8) + 1) * unit - unit / 2,
+        (Math.floor(s / 8) + 1) * unit - unit / 2,
+        r,
+        0,
+        Math.PI * 2,
+        false
+      );
+      ctx.closePath();
+      ctx.fill();
+    });
+
+    ctx.restore();
+  }
+
+  drawChecks() {
+    if (this.checks.length <= 0) return;
+    ctx.save();
+    ctx.fillStyle = "#00FF0088";
+
+    this.checks.forEach((s) => {
+      ctx.beginPath();
+      const r = unit/5;
+      ctx.arc(
+        ((s % 8) + 1) * unit - unit / 2 + 0.5,
         (Math.floor(s / 8) + 1) * unit - unit / 2,
         r,
         0,

@@ -465,10 +465,8 @@ class GameState {
       }
 
       case pieces.Queen:
-        const b = this.getBishop(piece, pieces)
-        const r = this.getRook(piece, pieces)
-
-        legal.push(...b, ...r)
+        const q = this.getQueen(piece, pieces)
+        legal.push(...q)
         break;
 
       case pieces.King:
@@ -485,6 +483,12 @@ class GameState {
             legal.push(curr)
           }
         }
+        // Q-side castle
+        const qside = -(piece%8-1)
+        // K-side casle
+        const kside = 7 - piece%8-1
+
+        // TODO: castling
         break;
 
       default:
@@ -605,6 +609,13 @@ class GameState {
     return resx.concat(...resy)
   }
 
+  getQueen(piece, pieces) {
+    const b = this.getBishop(piece, pieces)
+    const r = this.getRook(piece, pieces)
+
+    return [...b, ...r]
+  }
+
   getRookMoves(max, mod, piece, pieces, check) {
     const blocked = []
     const legal = []
@@ -633,6 +644,24 @@ class GameState {
       }
     }
     return legal;
+  }
+
+  checkChecks(king, pieces) {
+    const search = {};
+
+    search["p"] = this.getPawn(this.getPieceColor(king), king, pieces)?.capture
+ 
+    search["n"] = this.getKight(king)
+
+    search["b"] = this.getBishop(king, pieces)
+
+    search["r"] = this.getRook(king, pieces)
+    
+    search["q"] = this.getQueen(king, pieces)
+    
+    const res = [];
+    Object.values(search).forEach(x => res.push(...x))
+    return res
   }
 }
 
