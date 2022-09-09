@@ -44,10 +44,11 @@ document.addEventListener("mouseup", handleMouseUp, false);
 function handleMouseUp() {
   gameState.fPos = mouse.posIndex;
   board.checks = gameState.checkChecks(gameState.fPos, pieces)
+  if (gameState.posArray[gameState.fPos] == pieces.Null) {
+    gameState.clickmode == false;
+    return
+  }
   if (gameState.iPos == gameState.fPos) {
-    if (gameState.posArray[gameState.fPos] == pieces.Null) {
-      gameState.clickmode == false;
-    }
     gameState.clickmode = !gameState.clickmode
     return
   }
@@ -104,7 +105,7 @@ function handleMouseUp() {
 }
 
 gameState.decode(
-  "rnbqkbnr/pppppppp/8/8/3K4/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+  "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
   pieces,
   board
 );

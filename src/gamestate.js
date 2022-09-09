@@ -469,20 +469,10 @@ class GameState {
         legal.push(...q)
         break;
 
-      case pieces.King:
-        for (let i = -1; i < 2; i++) {
-          for (let j = -1; j < 2; j++) {
-            if (i == 0 && j == 0) continue
+      case pieces.King: {
+        const res = this.getKing(piece, pieces);
+        legal.push(...res)
 
-            const curr = piece + i*8 + j
-
-            if (curr > 63 || curr < 0) continue
-            if (this.getPieceColor(curr) == this.getPieceColor(piece)) continue
-            if (Math.abs(piece%8 - curr%8) > 2) continue
-
-            legal.push(curr)
-          }
-        }
         // Q-side castle
         const qside = -(piece%8-1)
         // K-side casle
@@ -490,6 +480,7 @@ class GameState {
 
         // TODO: castling
         break;
+      }
 
       default:
         break;
@@ -531,7 +522,7 @@ class GameState {
       if (
         !this.posArray[curr] ||
         this.posArray[curr] == pieces.Null ||
-        this.getPieceColor(curr) == this.playing
+        this.getPieceColor(curr) == this.getPieceColor(piece)
       )
         continue;
 
@@ -616,6 +607,24 @@ class GameState {
     return [...b, ...r]
   }
 
+  getKing(piece) {
+    const legal = [];
+    for (let i = -1; i < 2; i++) {
+      for (let j = -1; j < 2; j++) {
+        if (i == 0 && j == 0) continue
+
+        const curr = piece + i*8 + j
+
+        if (curr > 63 || curr < 0) continue
+        if (this.getPieceColor(curr) == this.getPieceColor(piece)) continue
+        if (Math.abs(piece%8 - curr%8) > 2) continue
+
+        legal.push(curr)
+      }
+    }
+    return legal;
+  }
+
   getRookMoves(max, mod, piece, pieces, check) {
     const blocked = []
     const legal = []
@@ -647,21 +656,31 @@ class GameState {
   }
 
   checkChecks(king, pieces) {
-    const search = {};
+    const checks = [];
 
-    search["p"] = this.getPawn(this.getPieceColor(king), king, pieces)?.capture
- 
-    search["n"] = this.getKight(king)
+    const check = (arr, p) => {
+      arr.forEach(x => {if (this.getPiece(x) == p) checks.push(x)})
+    }
 
-    search["b"] = this.getBishop(king, pieces)
+    const pawn = this.getPawn(this.getPieceColor(king), king, pieces)?.capture
+    check(pawn, pieces.Pawn)
 
-    search["r"] = this.getRook(king, pieces)
+    const knight = this.getKight(king)
+    check(knight, pieces.Knight)
+
+    const bishop = this.getBishop(king, pieces)
+    check(bishop, pieces.Bishop)
+
+    const rook = this.getRook(king, pieces)
+    check(rook, pieces.Rook)
     
-    search["q"] = this.getQueen(king, pieces)
+    const queen = this.getQueen(king, pieces)
+    check(queen, pieces.Queen)
     
-    const res = [];
-    Object.values(search).forEach(x => res.push(...x))
-    return res
+    const kingMoves = this.getKing(king)
+    check(kingMoves, pieces.King)
+
+    return (checks)
   }
 }
 
