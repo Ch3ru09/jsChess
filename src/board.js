@@ -40,7 +40,7 @@ class Board {
 
   drawPieces() {
     let grabbed;
-    const shownArr = [...gameState.posArray];
+    const shownArr = [...gs.posArray];
     if (this.reversed) shownArr.reverse();
     shownArr.forEach((s, i, arr) => {
       ctx.fillStyle = "#000";
@@ -131,12 +131,12 @@ class Board {
       return v * unit;
     });
 
-    if (gameState.posArray[mouse.posIndex] !== 0) {
+    if (gs.posArray[mouse.posIndex] !== 0) {
       canvas.style.cursor = "grab";
-      gameState.pieceOn = mouse.posIndex;
+      gs.pieceOn = mouse.posIndex;
     } else {
       canvas.style.cursor = "default";
-      gameState.pieceOn = null;
+      gs.pieceOn = null;
     }
 
     ctx.save();

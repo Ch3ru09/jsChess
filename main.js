@@ -1,6 +1,6 @@
 const pieces = new Pieces();
 const board = new Board();
-const gameState = new GameState();
+const gs = new GameState();
 const mouse = new Mouse();
 const gameLog = new GameLog();
 
@@ -24,92 +24,111 @@ function handleMouseMove(e) {
     mouse.posIndex = mouse.getPosIndex(board);
   } else {
     mouse.posInBoard = { x: null, y: null };
-    gameState.pieceOn = undefined;
+    gs.pieceOn = undefined;
   }
 }
 
 document.addEventListener("mousedown", handleMouseDown, false);
 async function handleMouseDown() {
-  if (!mouse.inBoard || gameState.pieceOn == null) return;
-  gameState.iPos = mouse.posIndex;
+  if (!mouse.inBoard) return;
+  gs.iPos = mouse.posIndex;
 
-  gameState.legal = board.legal = await gameState.getLegal(mouse.posIndex, pieces);
-  // if (((gameState.posArray[gameState.pieceOn]) & gameState.playing) == gameState.playing) {
-  //   gameState.posArray[gameState.pieceOn] *= -1;
-  //   gameState.pieceGrabbed = gameState.pieceOn;
+  if (gs.pieceOn == null) return
+  if (gs.getPieceColor(gs.iPos) !== gs.playing) return
+
+
+  gs.legal = board.legal = await gs.getLegal(mouse.posIndex, pieces);
+  gs.pieceGrabbed = mouse.posIndex
+  // if (((gs.posArray[gs.pieceOn]) & gs.playing) == gs.playing) {
+  //   gs.posArray[gs.pieceOn] *= -1;
+  //   gs.pieceGrabbed = gs.pieceOn;
   // }
 }
 
 document.addEventListener("mouseup", handleMouseUp, false);
 function handleMouseUp() {
-  gameState.fPos = mouse.posIndex;
-  board.checks = gameState.checkChecks(gameState.fPos, pieces)
-  if (gameState.posArray[gameState.fPos] == pieces.Null) {
-    gameState.clickmode == false;
+  gs.fPos = mouse.posIndex
+  // board.checks = gs.checkChecks(gs.fPos, pieces)
+  if (gs.iPos == gs.fPos) {
+    gs.clickmode = !gs.clickmode
+    if (gs.legal.includes(gs.fPos)) {
+      const currPiece = gs.pieceGrabbed
+      if (gs.posArray[gs.fPos] !== pieces.Null) {
+        gs.captured.push(gs.posArray[gs.fPos])
+        // TODO: redoing game log while talking in account captured pieces
+      }
+      gs.posArray[gs.fPos] = gs.posArray[currPiece];
+      gs.posArray[gs.pieceGrabbed] = pieces.Null;
+      gs.legal = board.legal = [];
+
+      gs.playing ^= 24;
+      board.pieceMoving = true;
+      board.movingPiece = [currPiece, gs.fPos];
+    }
+    // if (gs.posArray[gs.fPos] == pieces.Null) {
+    //   gs.clickmode == false;
+    //   return
+    // }
     return
   }
-  if (gameState.iPos == gameState.fPos) {
-    gameState.clickmode = !gameState.clickmode
-    return
-  }
 
 
 
-  // if (gameState.pieceGrabbed !== null && !mouse.inBoard) return gameState.posArray[gameState.pieceGrabbed] *= -1;
-  // if (gameState.pieceOn === undefined) return;
-  // if (gameState.pieceGrabbed === null) return;
-  // const res = gameState.checkLegal(mouse, pieces)
+  // if (gs.pieceGrabbed !== null && !mouse.inBoard) return gs.posArray[gs.pieceGrabbed] *= -1;
+  // if (gs.pieceOn === undefined) return;
+  // if (gs.pieceGrabbed === null) return;
+  // const res = gs.checkLegal(mouse, pieces)
   // let isLegal, info
   // if (res) {
   //   [isLegal, info] = res
   // }
 
-  // if (mouse.posIndex != gameState.pieceGrabbed && isLegal) {
+  // if (mouse.posIndex != gs.pieceGrabbed && isLegal) {
 
   //   if (info != "casled") {
   //     let {p, i, f} = info;
-  //     gameLog.addMove(p, i, f, gameState);
-  //     gameState.posArray[mouse.posIndex] = -gameState.posArray[gameState.pieceGrabbed];
+  //     gameLog.addMove(p, i, f, gs);
+  //     gs.posArray[mouse.posIndex] = -gs.posArray[gs.pieceGrabbed];
   //   } else {
   //     gameLog.log.push("O-O")
   //   }
 
-  //   if (gameState.epCheck) {
-  //     gameState.epCheck = false;
+  //   if (gs.epCheck) {
+  //     gs.epCheck = false;
   //   } else {
-  //     gameState.enPassant = null;
+  //     gs.enPassant = null;
   //   }
 
-  //   gameState.drawchecks.splice(0, gameState.drawchecks.length);
+  //   gs.drawchecks.splice(0, gs.drawchecks.length);
 
-  //   gameState.posArray[gameState.pieceGrabbed] = 0;
+  //   gs.posArray[gs.pieceGrabbed] = 0;
 
-  //   gameState.kings.forEach(p => {
-  //     const res = gameState.checkChecks(p, pieces);
+  //   gs.kings.forEach(p => {
+  //     const res = gs.checkChecks(p, pieces);
   //     if (!res[0]) return;
   //     console.log(res);
 
-  //     if (res[1] == gameState.playing) {
-  //       gameLog.revertMove(-1, gameState);
-  //       gameState.playing ^= 24;
+  //     if (res[1] == gs.playing) {
+  //       gameLog.revertMove(-1, gs);
+  //       gs.playing ^= 24;
   //     }
   //   })
 
-  //   gameState.playing ^= 24;
+  //   gs.playing ^= 24;
   //   console.clear();
   //   console.log(JSON.stringify(gameLog.log));
   // } else {
-  //   gameState.posArray[gameState.pieceGrabbed] *= -1;
-  //   gameState.pieceGrabbed = null;
+  //   gs.posArray[gs.pieceGrabbed] *= -1;
+  //   gs.pieceGrabbed = null;
   // }
 }
 
-gameState.decode(
+gs.decode(
   "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
   pieces,
   board
 );
-// gameState.decode("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", pieces, board);
+// gs.decode("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", pieces, board);
 
 function animation() {
   draw();
@@ -119,7 +138,7 @@ function animation() {
 function draw() {
   ctx.clearRect(0, 0, W, H);
   board.draw();
-  // gameState.drawSquares(ctx, board, unit);
+  // gs.drawSquares(ctx, board, unit);
 }
 
 animation();

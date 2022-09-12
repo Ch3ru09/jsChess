@@ -19,6 +19,8 @@ class GameState {
 
     this.checkedLegal = {}
     this.clickmode = false
+
+    this.captured = [];
   }
 
   decode(fencode, pieces) {
@@ -440,7 +442,6 @@ class GameState {
     if (this.checkedLegal.hasOwnProperty(`${piece}`)) {
       return this.checkedLegal[`${piece}`];
     }
-
     const legal = [];
     const color = this.getPieceColor(piece);
 
