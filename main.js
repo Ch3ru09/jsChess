@@ -33,12 +33,11 @@ async function handleMouseDown() {
   if (!mouse.inBoard) return;
   gs.iPos = mouse.posIndex;
 
-  if (gs.pieceOn == null) return
-  if (gs.getPieceColor(gs.iPos) !== gs.playing) return
-
+  if (gs.pieceOn == null) return;
+  if (gs.getPieceColor(gs.iPos) !== gs.playing) return;
 
   gs.legal = board.legal = await gs.getLegal(mouse.posIndex, pieces);
-  gs.pieceGrabbed = mouse.posIndex
+  gs.pieceGrabbed = mouse.posIndex;
   // if (((gs.posArray[gs.pieceOn]) & gs.playing) == gs.playing) {
   //   gs.posArray[gs.pieceOn] *= -1;
   //   gs.pieceGrabbed = gs.pieceOn;
@@ -47,14 +46,14 @@ async function handleMouseDown() {
 
 document.addEventListener("mouseup", handleMouseUp, false);
 function handleMouseUp() {
-  gs.fPos = mouse.posIndex
+  gs.fPos = mouse.posIndex;
   // board.checks = gs.checkChecks(gs.fPos, pieces)
   if (gs.iPos == gs.fPos) {
-    gs.clickmode = !gs.clickmode
+    gs.clickmode = !gs.clickmode;
     if (gs.legal.includes(gs.fPos)) {
-      const currPiece = gs.pieceGrabbed
+      const currPiece = gs.pieceGrabbed;
       if (gs.posArray[gs.fPos] !== pieces.Null) {
-        gs.captured.push(gs.posArray[gs.fPos])
+        gs.captured.push(gs.posArray[gs.fPos]);
         // TODO: redoing game log while talking in account captured pieces
       }
       gs.posArray[gs.fPos] = gs.posArray[currPiece];
@@ -69,10 +68,8 @@ function handleMouseUp() {
     //   gs.clickmode == false;
     //   return
     // }
-    return
+    return;
   }
-
-
 
   // if (gs.pieceGrabbed !== null && !mouse.inBoard) return gs.posArray[gs.pieceGrabbed] *= -1;
   // if (gs.pieceOn === undefined) return;

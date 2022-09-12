@@ -79,7 +79,7 @@ class Board {
 
     this.legal.forEach((s) => {
       ctx.beginPath();
-      const r = unit/5;
+      const r = unit / 5;
       ctx.arc(
         ((s % 8) + 1) * unit - unit / 2,
         (Math.floor(s / 8) + 1) * unit - unit / 2,
@@ -102,7 +102,7 @@ class Board {
 
     this.checks.forEach((s) => {
       ctx.beginPath();
-      const r = unit/5;
+      const r = unit / 5;
       ctx.arc(
         ((s % 8) + 1) * unit - unit / 2 + 0.5,
         (Math.floor(s / 8) + 1) * unit - unit / 2,
