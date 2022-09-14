@@ -433,16 +433,14 @@ class GameCalc {
         legal.push(...this.getKight(piece));
         break;
 
-      case pieces.Bishop: {
+      case pieces.Bishop: 
         legal.push(...this.getBishop(piece, pieces));
         break;
-      }
 
-      case pieces.Rook: {
+      case pieces.Rook: 
         legal.push(...this.getRook(piece, pieces));
         break;
-      }
-
+      
       case pieces.Queen:
         const q = this.getQueen(piece, pieces);
         legal.push(...q);
@@ -452,12 +450,24 @@ class GameCalc {
         const res = this.getKing(piece, pieces);
         legal.push(...res);
 
-        // Q-side castle
-        const qside = -((piece % 8) - 1);
-        // K-side casle
-        const kside = 7 - (piece % 8) - 1;
 
+        if (![4, 60].includes(piece)) break
+        // Q-side castle
+        const qside = -(piece % 8);
+        // K-side casle 
+        const kside = 7 - (piece % 8);
+
+        for (let i of [qside, kside]) {
+          const r = piece +i // position of the rook
+          const curr = (((r) / 7) % 6)
+
+          if (((this.canCastle) & (2**curr)) == 0) continue
+
+          const diff = r-piece
+          const sign = Math.sign(diff)
+        }
         // TODO: castling
+
         break;
       }
 

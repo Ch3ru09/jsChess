@@ -59,6 +59,8 @@ function handleMouseUp() {
       gs.posArray[gs.fPos] = gs.posArray[currPiece];
       gs.posArray[gs.pieceGrabbed] = pieces.Null;
       gs.legal = board.legal = [];
+      gs.checkedLegal = {}
+
 
       gs.playing ^= 24;
       board.pieceMoving = true;
@@ -120,11 +122,7 @@ function handleMouseUp() {
   // }
 }
 
-gs.decode(
-  "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
-  pieces,
-  board
-);
+gs.decode("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", pieces, board);
 // gs.decode("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", pieces, board);
 
 function animation() {
