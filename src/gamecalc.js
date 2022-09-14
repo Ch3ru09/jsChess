@@ -465,6 +465,14 @@ class GameCalc {
 
           const diff = r-piece
           const sign = Math.sign(diff)
+
+          for (let i = 1; i < Math.abs(diff); i++) {
+            let c = piece + sign*i;
+            if (c !== pieces.Null) break
+            if (this.checkChecks(c, pieces).length > 0) break
+            if (i !== Math.abs(diff)-1) continue
+            console.log(c);
+          }
         }
         // TODO: castling
 
@@ -532,7 +540,7 @@ class GameCalc {
         let ycheck = Math.abs(Math.floor(piece / 8) - Math.floor(s / 8)) > 2;
         if (Math.abs((piece % 8) - (s % 8)) > 2 || s > 63 || s < 0 || ycheck)
           continue;
-        if (this.getPieceColor(curr) == this.getPieceColor(piece)) continue;
+        if (this.getPieceColor(s) == this.getPieceColor(piece)) continue;
 
         legal.push(s);
       }
