@@ -52,15 +52,17 @@ function handleMouseUp() {
     gs.clickmode = !gs.clickmode;
     if (gs.legal.includes(gs.fPos)) {
       const currPiece = gs.pieceGrabbed;
-      if (gs.posArray[gs.fPos] !== pieces.Null) {
+      if (
+        gs.posArray[gs.fPos] !== pieces.Null &&
+        getPieceColor(gs.fPos) !== gs.getPieceColor(gs.pieceGrabbed)
+      ) {
         gs.captured.push(gs.posArray[gs.fPos]);
         // TODO: redoing game log while talking in account captured pieces
       }
       gs.posArray[gs.fPos] = gs.posArray[currPiece];
       gs.posArray[gs.pieceGrabbed] = pieces.Null;
       gs.legal = board.legal = [];
-      gs.checkedLegal = {}
-
+      gs.checkedLegal = {};
 
       gs.playing ^= 24;
       board.pieceMoving = true;
@@ -122,8 +124,12 @@ function handleMouseUp() {
   // }
 }
 
-gs.decode("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", pieces, board);
 // gs.decode("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", pieces, board);
+gs.decode(
+  "r1bqkb1r/pppp1ppp/2n2n2/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 0 1",
+  pieces,
+  board
+);
 
 function animation() {
   draw();

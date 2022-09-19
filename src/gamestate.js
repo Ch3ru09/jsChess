@@ -1,7 +1,7 @@
-class GameState extends GameCalc{
+class GameState extends GameCalc {
   constructor() {
-    super()
-    
+    super();
+
     this.playing = 0;
     this.posArray = Object.seal(Array(64).fill(0));
     this.pieceOn = null;

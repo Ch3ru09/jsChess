@@ -433,14 +433,14 @@ class GameCalc {
         legal.push(...this.getKight(piece));
         break;
 
-      case pieces.Bishop: 
+      case pieces.Bishop:
         legal.push(...this.getBishop(piece, pieces));
         break;
 
-      case pieces.Rook: 
+      case pieces.Rook:
         legal.push(...this.getRook(piece, pieces));
         break;
-      
+
       case pieces.Queen:
         const q = this.getQueen(piece, pieces);
         legal.push(...q);
@@ -450,27 +450,29 @@ class GameCalc {
         const res = this.getKing(piece, pieces);
         legal.push(...res);
 
-
-        if (![4, 60].includes(piece)) break
+        if (![4, 60].includes(piece)) break;
         // Q-side castle
         const qside = -(piece % 8);
-        // K-side casle 
+        // K-side casle
         const kside = 7 - (piece % 8);
 
         for (let i of [qside, kside]) {
-          const r = piece +i // position of the rook
-          const curr = (((r) / 7) % 6)
+          const r = piece + i; // position of the rook
+          const curr = (r / 7) % 6;
 
-          if (((this.canCastle) & (2**curr)) == 0) continue
+          if ((this.canCastle & (2 ** curr)) == 0) continue;
 
-          const diff = r-piece
-          const sign = Math.sign(diff)
+          const diff = r - piece;
+          const sign = Math.sign(diff);
 
-          for (let i = 1; i < Math.abs(diff); i++) {
-            let c = piece + sign*i;
-            if (c !== pieces.Null) break
-            if (this.checkChecks(c, pieces).length > 0) break
-            if (i !== Math.abs(diff)-1) continue
+          // Check if empty squares
+          const color = this.getPieceColor(piece);
+          empty: for (let i = 1; i < Math.abs(diff); i++) {
+            let c = piece + sign * i;
+            if (this.posArray[c] !== pieces.Null) break empty;
+
+            if (this.checkChecks(c, pieces, color).length > 0) break empty;
+            if (i !== Math.abs(diff) - 1) continue empty;
             console.log(c);
           }
         }
@@ -649,16 +651,18 @@ class GameCalc {
     return legal;
   }
 
-  checkChecks(king, pieces) {
+  checkChecks(king, pieces, color) {
     const checks = [];
 
     const check = (arr, p) => {
       arr.forEach((x) => {
-        if (this.getPiece(x) == p) checks.push(x);
+        if (this.getPiece(x) !== p) return;
+        if (this.getPieceColor(x) == color) return;
+        checks.push(x);
       });
     };
 
-    const pawn = this.getPawn(this.getPieceColor(king), king, pieces)?.capture;
+    const pawn = this.getPawn(color, king, pieces)?.capture;
     check(pawn, pieces.Pawn);
 
     const knight = this.getKight(king);
