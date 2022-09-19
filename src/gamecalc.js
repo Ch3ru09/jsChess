@@ -475,6 +475,11 @@ class GameCalc {
 
             if (this.checkChecks(c, pieces, color).length > 0) break empty;
             if (i !== Math.abs(diff) - 1) continue empty;
+            if (i > 2) {
+              c = piece + sign * (i-1)
+              legal.push(c)
+              break empty
+            }
             legal.push(c)
           }
         }
