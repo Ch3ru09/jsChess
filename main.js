@@ -36,7 +36,7 @@ async function handleMouseDown() {
   if (gs.pieceOn == null) return;
   if (gs.getPieceColor(gs.iPos) !== gs.playing) return;
 
-  gs.legal = board.legal = await gs.getLegal(mouse.posIndex, pieces);
+  board.legal = gs.legal = await gs.getLegal(mouse.posIndex, pieces);
   gs.pieceGrabbed = mouse.posIndex;
   // if (((gs.posArray[gs.pieceOn]) & gs.playing) == gs.playing) {
   //   gs.posArray[gs.pieceOn] *= -1;
@@ -58,6 +58,16 @@ function handleMouseUp() {
       ) {
         gs.captured.push(gs.posArray[gs.fPos]);
         // TODO: redoing game log while talking in account captured pieces
+      }
+      ifKing: if (gs.isK) {
+        let delta = gs.fPos-gs.pieceGrabbed;
+        if (Math.abs(delta) !== 2) break ifKing
+
+        const r = gs.pieceGrabbed + (delta < 0 ? -4: 3)
+        const newPos = gs.fPos - Math.sign(delta)
+        
+        gs.posArray[newPos] = gs.posArray[r];
+        gs.posArray[r] = pieces.Null;
       }
       gs.posArray[gs.fPos] = gs.posArray[currPiece];
       gs.posArray[gs.pieceGrabbed] = pieces.Null;

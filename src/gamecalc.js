@@ -421,6 +421,7 @@ class GameCalc {
       return this.checkedLegal[`${piece}`];
     }
     const legal = [];
+    this.isK = false;
     const color = this.getPieceColor(piece);
 
     switch (this.getPiece(piece)) {
@@ -447,6 +448,7 @@ class GameCalc {
         break;
 
       case pieces.King: {
+        this.isK = true
         const res = this.getKing(piece, pieces);
         legal.push(...res);
 
@@ -473,7 +475,7 @@ class GameCalc {
 
             if (this.checkChecks(c, pieces, color).length > 0) break empty;
             if (i !== Math.abs(diff) - 1) continue empty;
-            console.log(c);
+            legal.push(c)
           }
         }
         // TODO: castling
