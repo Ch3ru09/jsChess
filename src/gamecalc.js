@@ -418,6 +418,7 @@ class GameCalc {
 
   getLegal(piece, pieces) {
     if (this.checkedLegal.hasOwnProperty(`${piece}`)) {
+      if (this.getPiece(piece) == pieces.King) this.isK = true
       return this.checkedLegal[`${piece}`];
     }
     const legal = [];
