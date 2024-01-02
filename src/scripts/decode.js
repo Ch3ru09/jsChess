@@ -1,37 +1,53 @@
+import Pieces from "./pieces"
+
 function decode(fencode) {
     const temporaryBoard = [];
     const pieces = new Pieces();
 
     const info = fencode.split(" ");
-    this.playing = info[1] === "w" ? 1 : 0;
-    info[2].split("").forEach((s) => {
-        this.canCastle |= this.castling[s];
-    });
+    const playing = info[1] === "w" ? 1 : 0;
+    let canCastle = 0b0000;
+
+    const letterToCastling = {
+        K: 0b0001,
+        Q: 0b0010,
+        k: 0b0100,
+        q: 0b1000,
+    }
+
+    for (let s of info[2].split("")) {
+        canCastle |= letterToCastling[s];
+    }
+
     const letterToPiece = {
-        p: pieces.Pawn,
-        n: pieces.Knight,
-        b: pieces.Bishop,
-        r: pieces.Rook,
-        q: pieces.Queen,
-        k: pieces.King,
+        p: pieces.PAWN,
+        n: pieces.KNIGHT,
+        b: pieces.BISHOP,
+        r: pieces.ROOK,
+        q: pieces.QUEEN,
+        k: pieces.KING,
     };
-    info[0].split("/").forEach((row, index) => {
+
+    const position = info[0].split("/")
+    for (let index = 0; index < position.length; index++) {
+        const row = position[index];
+
         let c = 8 * index;
-        row.split("").forEach((s) => {
+        for (let s of row.split("")) {
             if (!Number.isNaN(Number(s))) {
                 c += Number(s);
                 return;
             }
-            if (s.toLowerCase() === "k") {
-                this.kings.splice(s === s.toLowerCase() ? 0 : 1, 1, c);
-            }
-            this.posArray[c] =
+            temporaryBoard[c] =
                 (s === s.toLowerCase() ? pieces.Dark : pieces.Light) |
                 letterToPiece[s.toLowerCase()];
             c++;
-        });
-    });
-    return temporaryBoard;
+        };
+    };
+
+    const enPassant = info[3];
+
+    return { info: { playing, canCastle, enPassant }, board: temporaryBoard };
 }
 
 export { decode }

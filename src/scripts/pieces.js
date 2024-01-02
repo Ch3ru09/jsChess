@@ -1,37 +1,29 @@
 class Pieces {
     constructor() {
-        this.NULL = 0;
+        this.NULL = 0b000;
 
-        // using 3-bit binary representation
-        // 001
-        this.PAWN = 1;
-        // 010
-        this.KNIGHT = 2;
-        // 011
-        this.BISHOP = 3;
-        // 100
-        this.ROOK = 4;
-        // 101
-        this.QUEEN = 5;
-        // 110
-        this.KING = 6;
+        this.PAWN = 0b001;
+        this.KNIGHT = 0b010;
+        this.BISHOP = 0b011;
+        this.ROOK = 0b100;
+        this.QUEEN = 0b101;
+        this.KING = 0b110;
 
-
-        this.WHITE = 0;
-        this.BLACK = 1;
+        this.WHITE = 0b0000;
+        this.BLACK = 0b1000;
     }
 
     getColor(piece) {
-        // mask with 1000
-        return piece & 8;
+        return piece & 0b1000;
     }
 
     getPiece(piece) {
-        // mask with 0111
-        return piece & 7;
+        return piece & 0b0111;
     }
 
     isCurrentlyPlaying(piece, currentlyPlaying) {
         return (~(this.getColor(piece) ^ currentlyPlaying) + 2) === 1
     }
 }
+
+export default Pieces;
